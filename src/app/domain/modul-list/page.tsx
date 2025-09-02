@@ -62,6 +62,7 @@ export default function Page() {
             title={item.title}
             description={item.description}
             items={item.items}
+            suffix={"➡️"}
           />
         ))}
       </div>

@@ -14,7 +14,14 @@ interface CardProps {
   onClick?: () => void;
 }
 
-export default function Card({ prefix, suffix, title, description, items, onClick }: CardProps) {
+const Card = React.memo(function Card({
+  prefix,
+  suffix,
+  title,
+  description,
+  items,
+  onClick,
+}: CardProps) {
   return (
     <div
       onClick={onClick}
@@ -37,7 +44,6 @@ export default function Card({ prefix, suffix, title, description, items, onClic
           flexDirection: "column",
           gap: "5px",
           flexGrow: "1",
-          width: "100%",
         }}
       >
         {title && <h4 style={{ color: "black" }}>{title}</h4>}
@@ -58,4 +64,6 @@ export default function Card({ prefix, suffix, title, description, items, onClic
       {suffix && <div>{suffix}</div>}
     </div>
   );
-}
+});
+
+export default Card;

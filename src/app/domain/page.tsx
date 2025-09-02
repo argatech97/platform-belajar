@@ -46,6 +46,7 @@ export default function Page() {
                 label: `${item.jumlahModul} Modul`,
               },
             ]}
+            suffix={"➡️"}
           />
         ))}
       </div>

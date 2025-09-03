@@ -14,9 +14,9 @@ export default function Home() {
         style={{
           display: "flex",
           flexDirection: "column",
-          padding: "20px",
-          marginTop: "50px",
+          padding: "50px 20px 20px",
           gap: "20px",
+          height: "100%",
         }}
       >
         <TableSingleColumn

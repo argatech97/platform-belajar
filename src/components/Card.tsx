@@ -11,6 +11,8 @@ interface CardProps {
   title?: string;
   description?: string;
   items?: ICardItem[];
+  backgroundColor?: string;
+  color?: string;
   onClick?: () => void;
 }
 
@@ -20,6 +22,8 @@ const Card = React.memo(function Card({
   title,
   description,
   items,
+  backgroundColor,
+  color,
   onClick,
 }: CardProps) {
   return (
@@ -35,6 +39,7 @@ const Card = React.memo(function Card({
         justifyContent: "space-between",
         gap: "15px",
         cursor: "pointer",
+        backgroundColor: backgroundColor ? backgroundColor : "white",
       }}
     >
       {prefix && <div>{prefix}</div>}
@@ -46,8 +51,10 @@ const Card = React.memo(function Card({
           flexGrow: "1",
         }}
       >
-        {title && <h4 style={{ color: "black" }}>{title}</h4>}
-        {description && <p style={{ color: "#555", padding: "5px 0px" }}>{description}</p>}
+        {title && <h4 style={{ color: color ? color : "black" }}>{title}</h4>}
+        {description && (
+          <p style={{ color: color ? color : "#555", padding: "5px 0px" }}>{description}</p>
+        )}
         {items && (
           <div style={{ display: "flex", gap: "10px", flexWrap: "nowrap" }}>
             {items.map((item, index) => {

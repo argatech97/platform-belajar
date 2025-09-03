@@ -2,7 +2,7 @@
 
 import React, { useMemo } from "react";
 import Container from "@/components/Container";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import CloseNavigation from "@/components/CloseNavigation";
 import Countdown from "@/components/Countdown";
 import CircleButton from "@/components/ButtonCircle";
@@ -101,6 +101,7 @@ export default function Page() {
     ],
     []
   );
+  const router = useRouter();
   const [nomor, setNomor] = React.useState(1);
   return (
     <Container>
@@ -125,6 +126,7 @@ export default function Page() {
           </p>
           <Countdown minutes={10} />
           <button
+            onClick={() => router.push("/skor?navbarTitle=Quiz 1")}
             style={{
               padding: "10px",
               borderRadius: "5px",

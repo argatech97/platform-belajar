@@ -7,11 +7,12 @@ interface ITabItem {
 interface ITab {
   primaryColor?: string;
   tabList: ITabItem[];
+  initialActiveTab: string;
   tabOnChange: (value: string) => void;
 }
 
-export default function Tab({ primaryColor, tabList, tabOnChange }: ITab) {
-  const [activeTab, setActiveTab] = useState("materi");
+export default function Tab({ primaryColor, tabList, tabOnChange, initialActiveTab }: ITab) {
+  const [activeTab, setActiveTab] = useState<string>(initialActiveTab);
 
   const tabOnClick = useCallback(
     (value: string) => {

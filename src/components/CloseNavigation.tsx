@@ -25,6 +25,9 @@ export default function CloseNavigation({
         borderBottom: !disableBorder ? "0.5px solid #c6c6c6" : "none",
         padding: "15px",
         cursor: "pointer",
+        position: "sticky",
+        top: 0,
+        left: 0,
       }}
     >
       <span onClick={() => router.back()} style={{ marginRight: "10px", cursor: "pointer" }}>

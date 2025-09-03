@@ -71,6 +71,7 @@ export default function Page() {
         </p>
       </div>
       <Tab
+        initialActiveTab="materi"
         primaryColor="#C6C6C6"
         tabList={[
           { label: "Materi", value: "materi" },

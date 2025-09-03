@@ -1,6 +1,8 @@
+import { useRouter } from "next/navigation";
 import React from "react";
 
 export default function BottomNavigation() {
+  const router = useRouter();
   return (
     <div
       style={{
@@ -29,6 +31,9 @@ export default function BottomNavigation() {
         />
       </svg>
       <svg
+        onClick={() => {
+          router.push("/capaian?navbarTitle=Peserta Didik");
+        }}
         width="20"
         height="20"
         viewBox="0 0 30 30"

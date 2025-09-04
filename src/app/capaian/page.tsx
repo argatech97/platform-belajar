@@ -4,6 +4,7 @@ import Container from "@/components/Container";
 import BackNavigation from "@/components/BackNavigation";
 import { useSearchParams } from "next/navigation";
 import Tab from "@/components/Tab";
+import TryoutKelas from "./components/pendidik/TryoutKelas";
 
 export default function Page() {
   const navbarTitle = useSearchParams().get("navbarTitle");
@@ -21,6 +22,9 @@ export default function Page() {
           console.log(value);
         }}
       ></Tab>
+      <div style={{ height: "100%", padding: "20px" }}>
+        <TryoutKelas />
+      </div>
     </Container>
   );
 }

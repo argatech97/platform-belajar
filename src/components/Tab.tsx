@@ -29,6 +29,7 @@ export default function Tab({ primaryColor, tabList, tabOnChange, initialActiveT
           onClick={() => tabOnClick(tab.value)}
           key={index}
           style={{
+            cursor: "pointer",
             backgroundColor:
               activeTab === tab.value ? (primaryColor ? primaryColor : "#69CA87") : "white",
             flexGrow: 1,

@@ -4,7 +4,7 @@ export default function Container({ children }: { children: React.ReactNode }) {
   return (
     <div
       style={{
-        background: "#f0f0f0ff",
+        background: "white",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",

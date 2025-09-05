@@ -14,6 +14,7 @@ interface CardProps {
   backgroundColor?: string;
   color?: string;
   onClick?: () => void;
+  border?: string;
 }
 
 const Card = React.memo(function Card({
@@ -25,6 +26,7 @@ const Card = React.memo(function Card({
   backgroundColor,
   color,
   onClick,
+  border,
 }: CardProps) {
   return (
     <div
@@ -34,7 +36,7 @@ const Card = React.memo(function Card({
         flexWrap: "nowrap",
         padding: "15px",
         borderRadius: "8px",
-        border: "solid 0.5px #c6c6c6",
+        border: border ? border : "solid 0.5px #c6c6c6",
         alignItems: "center",
         justifyContent: "space-between",
         gap: "15px",

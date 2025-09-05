@@ -32,10 +32,10 @@ export default function Page() {
           padding: "0px 20px",
         }}
       >
-        <h3 style={{ marginBottom: "15px" }}>Skor Total</h3>
-        <p style={{ marginBottom: "15px" }}>Selamat atas pencapaianmu</p>
+        <h3 style={{ marginBottom: "15px", color: "black" }}>Skor Total</h3>
+        <p style={{ marginBottom: "15px", color: "black" }}>Selamat atas pencapaianmu</p>
         <CircleWithInner background={"#78CF93"} width={100} height={100} label={"100"} />
-        <p style={{ margin: "15px 0px" }}>Infografis Pencapianmu</p>
+        <p style={{ margin: "15px 0px", color: "black" }}>Infografis Pencapianmu</p>
         <div
           style={{
             display: "flex",

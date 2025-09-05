@@ -1,240 +1,158 @@
-import { IQuestionForm } from "@/app/types/answerForm";
+import {
+  ICoupleing,
+  IMultipleChoice,
+  IMultipleSelect,
+  IQuestioner,
+  IQuestionForm,
+  IShortAnswer,
+} from "@/app/types/answerForm";
 
-const multipleChoice: IQuestionForm[] = [
+const content: { id: string; value: string }[] = [
   {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Bila kamu berada di ujung barat gang sakura, Maka jalan tercepat untuk menuju pabrik gula&nbsp; adalah ?</p>
-    `,
-    type: "multiple-choice",
-    correctAnswer: "a",
-    option: [
-      { value: "a", content: "Gang Sakura - Jalan Peribaru - Jalan Prabandinii", type: "text" },
-      {
-        value: "b",
-        content:
-          "Gang Sakura - Gang Srikandi - Gang Kenanga - Gang Malabar - Jalan Raya Prabandini",
-        type: "text",
-      },
-      {
-        value: "c",
-        content: "Gang Sakura - Gang Srikandi - Jalan Peribaru - Jalan Raya Prabandini",
-        type: "text",
-      },
-      {
-        value: "d",
-        content:
-          "Gang Sakura - Jalan Peribaru -  Gang Srikandi - Gang Kenanga  - Gang Malabar - Jalan Raya Prabandini",
-        type: "text",
-      },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Bila kamu berada di ujung barat gang sakura, Maka jalan tercepat untuk menuju pabrik gula&nbsp; adalah ?</p>
-    `,
-    type: "multiple-choice",
-    correctAnswer: "a",
-    option: [
-      { value: "a", content: "Gang Sakura - Jalan Peribaru - Jalan Prabandinii", type: "text" },
-      {
-        value: "b",
-        content:
-          "Gang Sakura - Gang Srikandi - Gang Kenanga - Gang Malabar - Jalan Raya Prabandini",
-        type: "text",
-      },
-      {
-        value: "c",
-        content: "Gang Sakura - Gang Srikandi - Jalan Peribaru - Jalan Raya Prabandini",
-        type: "text",
-      },
-      {
-        value: "d",
-        content:
-          "Gang Sakura - Jalan Peribaru -  Gang Srikandi - Gang Kenanga  - Gang Malabar - Jalan Raya Prabandini",
-        type: "text",
-      },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Bangunan yang berada di paling utara adalah ?</p>`,
-    type: "multiple-select",
-    correctAnswer: ["a"],
-    option: [
-      { value: "a", content: "Kantor A dan Kantor B", type: "text" },
-      {
-        value: "b",
-        content: "Kantor C dan Kantor D",
-        type: "text",
-      },
-      {
-        value: "c",
-        content: "Kantor A saja",
-        type: "text",
-      },
-      {
-        value: "d",
-        content: "Kantor B saja",
-        type: "text",
-      },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Pernyataan di bawah ini yang termasuk benar adalah ?</p>`,
-    type: "multiple-select",
-    correctAnswer: ["a", "b", "d"],
-    option: [
-      { value: "a", content: "Pabrik gula ada di jalana raya prabandhini", type: "text" },
-      {
-        value: "b",
-        content: "Bangunan yang ditunjuk pada tanda anak panah berada di jalan sakura ",
-        type: "text",
-      },
-      {
-        value: "c",
-        content: "Di jalan sakura hanya terdapat satu bangunan yang terlihat di peta",
-        type: "text",
-      },
-      {
-        value: "d",
-        content: "Ada dua bangunan yang berada di paling utara peta",
-        type: "text",
-      },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Bangunan yang berada di paling utara adalah ?</p>`,
-    type: "questioner",
-    correctAnswer: [
-      { sourceId: "1", value: "Setuju" },
-      { sourceId: "2", value: "Tidak Setuju" },
-    ],
-    source: [
-      {
-        id: "1",
-        content: "Pernyataan Pertama",
-      },
-      {
-        id: "2",
-        content: "Pernyataan Kedua",
-      },
-    ],
-    option: [
-      { value: "true", content: "Setuju" },
-      {
-        value: "false",
-        content: "Tidak Setuju",
-      },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Bangunan yang berada di paling utara adalah ?</p>`,
-    type: "questioner",
-    correctAnswer: [
-      { sourceId: "1", value: "Setuju" },
-      { sourceId: "2", value: "Tidak Setuju" },
-    ],
-    source: [
-      {
-        id: "1",
-        content: "Pernyataan Pertama",
-      },
-      {
-        id: "2",
-        content: "Pernyataan Kedua",
-      },
-    ],
-    option: [
-      { value: "true", content: "Setuju" },
-      {
-        value: "false",
-        content: "Tidak Setuju",
-      },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Dari denah tersebut, coba pasangkan antara bangunan dengan jalannya masing-masing ?</p>`,
-    type: "coupleing",
-    correctAnswer: [
-      { sourceId: "1", targetId: "1" },
-      { sourceId: "2", targetId: "2" },
-    ],
-    source: [
-      { value: "1", content: "Bangunan A" },
-      { value: "2", content: "Bangunan B" },
-    ],
-    target: [
-      { value: "1", content: "Jalan Peribaru" },
-      { value: "2", content: "Jalan Prabandini" },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Dari denah tersebut, coba pasangkan antara bangunan dengan jalannya masing-masing ?</p>`,
-    type: "coupleing",
-    correctAnswer: [
-      { sourceId: "1", targetId: "1" },
-      { sourceId: "2", targetId: "2" },
-    ],
-    source: [
-      { value: "1", content: "Bangunan A" },
-      { value: "2", content: "Bangunan B" },
-    ],
-    target: [
-      { value: "1", content: "Jalan Peribaru" },
-      { value: "2", content: "Jalan Prabandini" },
-    ],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Bangunan yang berada di bagian paling timur di jalan Raya Prabandini adalah ?</p>`,
-    type: "short-answer",
-    typeOfAnswer: "text",
-    correctAnswer: ["Pabrik Gula"],
-  },
-  {
-    content: `<p><strong>Perhatikan gambar di bawah ini!</strong></p>
-    <p>&nbsp;</p>
-    <p style="text-align: center;"><img src="https://idcopy.net/wp-content/uploads/2021/09/contoh-denah-lokasi.webp" alt="" width="400" height="" /></p>
-    <p style="text-align: center;">&nbsp;</p>
-    <p style="text-align: left;">Bangunan yang berada di bagian paling timur di jalan Raya Prabandini adalah ?</p>`,
-    type: "short-answer",
-    typeOfAnswer: "number",
-    correctAnswer: [20],
+    id: "1",
+    value: `<p><strong>Perhatikan denah berikut ini !</strong></p>
+<p><img src="https://citraiasha.wordpress.com/wp-content/uploads/2019/01/Denah-1.png?w=700" alt="" width="100%" /></p>`,
   },
 ];
 
-const quizDummy: IQuestionForm[] = [...multipleChoice];
+const multipleChoice: IMultipleChoice[] = [
+  {
+    id: "1",
+    question: "<p>Bangunan umum yang terletak paling timur adalah ?</p>",
+    contentId: "1",
+    type: "multiple-choice",
+    correctAnswer: "a",
+    option: [
+      { value: "a", content: "SD Brilian dan Rumah Bagas", type: "text" },
+      { value: "b", content: "Masjid dan Rumah Sari", type: "text" },
+      { value: "c", content: "Rumah Sari dan Rumah Bagas", type: "text" },
+      { value: "d", content: "SD Brilian dan Masjid", type: "text" },
+    ],
+    orderNumber: 1,
+    domainId: "1",
+    domain: "Literasi",
+    subDomain: "Mengakses dan Menemukan Informasi",
+    subDomainId: "1",
+  },
+];
 
-export default quizDummy;
+const multipleSelect: IMultipleSelect[] = [
+  {
+    id: "2",
+    contentId: "1",
+    option: [
+      { value: "a", content: "Rumah Sari berada di selatan Masjid", type: "text" },
+      { value: "b", content: "KUA bersebrangan dengan Rumah Sinta", type: "text" },
+      { value: "c", content: "Rumah Bayu bersebelahan dengan  Rumah Anita", type: "text" },
+      { value: "d", content: "Kantor Polisi bersebrangan dengan Gedung Serba Guna", type: "text" },
+    ],
+    question: "<p>Berikut ini pernyataan yang benar adalah ?</p>",
+    type: "multiple-select",
+    correctAnswer: ["b", "c", "d"],
+    orderNumber: 2,
+    domainId: "1",
+    domain: "Literasi",
+    subDomain: "Menginterpretasi dan Mengintegrasi",
+    subDomainId: "2",
+  },
+];
+
+const questioner: IQuestioner[] = [
+  {
+    contentId: "1",
+    source: [
+      {
+        id: "a",
+        content: "Bangunan yang berada di paling utara adalah KUA, Rumah Sinta dan Rumah Sari ",
+      },
+      {
+        id: "b",
+        content:
+          "Masjid bersebrangan dengan Lapangan di sisi barat dan bersebrangan dengan SD Brilian Jaya di sisi utara",
+      },
+    ],
+    option: [
+      { content: "Benar", value: "1" },
+      { content: "Tidak Benar", value: "0" },
+    ],
+    id: "3",
+    question: "<p>Di bawah ini tentukan keterangan yang benar  dan tidak benar </p>",
+    type: "questioner",
+    correctAnswer: [
+      { sourceId: "a", value: "1" },
+      { sourceId: "b", value: "1" },
+    ],
+    orderNumber: 3,
+    domainId: "1",
+    domain: "Literasi",
+    subDomain: "Mengevaluasi dan Merefleksi",
+    subDomainId: "3",
+  },
+];
+
+const shortAnswer: IShortAnswer[] = [
+  {
+    contentId: "1",
+    typeOfAnswer: "number",
+    id: "4",
+    question: "Ada berapa jumlah tempat umum pada denah tersebut? ",
+    type: "short-answer",
+    correctAnswer: [8],
+    orderNumber: 4,
+    domainId: "1",
+    domain: "Literasi",
+    subDomain: "Mengevaluasi dan Merefleksi",
+    subDomainId: "3",
+  },
+];
+
+const coupleing: ICoupleing[] = [
+  {
+    contentId: "1",
+    source: [
+      { value: "a", content: "Di sisi timur, KUA bersebrangan dengan ?" },
+      { value: "b", content: "Di sisi selatan, Kantor Polisi bersebrangan dengan ?" },
+    ],
+    target: [
+      {
+        value: "1",
+        content: "Rumah Ahmad",
+      },
+      {
+        value: "2",
+        content: "Gedung Serbaguna",
+      },
+      {
+        value: "3",
+        content: "KUD",
+      },
+      {
+        value: "4",
+        content: "Rumah Sinta",
+      },
+    ],
+    id: "5",
+    question: "<p>Berdasarkan denah di atas, maka tentukan pasangan tiap item di bawah ini!</p>",
+    type: "coupleing",
+    correctAnswer: [
+      { sourceId: "a", targetId: "4" },
+      { sourceId: "b", targetId: "2" },
+    ],
+    orderNumber: 5,
+    domainId: "1",
+    domain: "Literasi",
+    subDomain: "Mengakses dan Menemukan Informasi",
+    subDomainId: "1",
+  },
+];
+
+const quizDummy: IQuestionForm[] = [
+  ...multipleChoice,
+  ...multipleSelect,
+  ...questioner,
+  ...shortAnswer,
+  ...coupleing,
+];
+
+export { quizDummy };
+export { content };

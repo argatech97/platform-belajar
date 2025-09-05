@@ -7,12 +7,14 @@ type CloseNavigationProps = {
   backgroundColor?: string;
   disableBorder?: boolean;
   children: React.ReactNode;
+  destinationLink?: string;
 };
 
 export default function CloseNavigation({
   backgroundColor,
   disableBorder,
   children,
+  destinationLink,
 }: CloseNavigationProps) {
   const router = useRouter();
 
@@ -28,9 +30,13 @@ export default function CloseNavigation({
         position: "sticky",
         top: 0,
         left: 0,
+        zIndex: 100,
       }}
     >
-      <span onClick={() => router.back()} style={{ marginRight: "10px", cursor: "pointer" }}>
+      <span
+        onClick={() => (destinationLink ? router.replace(destinationLink) : router.back())}
+        style={{ marginRight: "10px", cursor: "pointer" }}
+      >
         ✖
       </span>
       {children}

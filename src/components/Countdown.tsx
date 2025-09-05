@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
 
-export default function Countdown({ minutes }: { minutes: number }) {
-  const [timeLeft, setTimeLeft] = useState(minutes * 60); // convert ke detik
-
+export default function Countdown({
+  timeLeft,
+  onEnd,
+  onChange,
+}: {
+  timeLeft: number;
+  onEnd: (timeLeft: number) => Promise<void>;
+  onChange: (timeLeft: number) => void;
+}) {
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      onEnd(timeLeft);
+      return;
+    }
 
     const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
+      const newValue = timeLeft - 1;
+      localStorage.setItem("timeLeft", `${newValue}`);
+      onChange(newValue);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft]);
+  }, [onChange, onEnd, timeLeft]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

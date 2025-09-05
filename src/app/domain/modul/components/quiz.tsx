@@ -17,7 +17,10 @@ const Quiz = React.memo(function Quiz({
     <div style={{ display: "flex", flexDirection: "column", gap: "15px", padding: "15px" }}>
       {items.map((item, index) => (
         <Card
-          onClick={() => onClickItem(item.title, item.id)}
+          onClick={() => {
+            localStorage.removeItem("timeLeft");
+            onClickItem(item.title, item.id);
+          }}
           key={index}
           title={item.title}
           description={`${item.countQuestion} Soal`}

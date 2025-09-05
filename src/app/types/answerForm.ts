@@ -1,7 +1,14 @@
 interface ISoal<X, Y> {
-  content: string;
+  id: string;
+  question: string;
+  contentId?: string;
   type: X;
   correctAnswer: Y;
+  orderNumber: number;
+  domainId: string;
+  domain: string;
+  subDomain: string;
+  subDomainId: string;
 }
 
 export type MultipleChoice = "multiple-choice";

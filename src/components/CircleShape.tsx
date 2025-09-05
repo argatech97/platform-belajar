@@ -33,6 +33,7 @@ const CircleWithInner = ({
           justifyContent: "center",
           alignItems: "center",
           position: "absolute",
+          zIndex: 1,
         }}
       >
         <h3 style={{ color: "white", margin: 0 }}>{label}</h3>

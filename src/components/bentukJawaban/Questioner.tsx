@@ -34,7 +34,13 @@ export default function Questioner({
         {option.map((opt, index) => (
           <div
             key={index}
-            style={{ padding: "10px", textAlign: "center", width: "100px", color: "black" }}
+            style={{
+              padding: "10px",
+              textAlign: "center",
+              width: "100px",
+              color: "black",
+              flexShrink: "0",
+            }}
           >
             {opt.content}
           </div>
@@ -52,7 +58,7 @@ export default function Questioner({
                 onClick(newValue.map((el) => ({ sourceId: el.sourceId, value: el.value })));
               }}
               key={idx}
-              style={{ padding: "10px", textAlign: "center", width: "100px" }}
+              style={{ padding: "10px", textAlign: "center", width: "100px", flexShrink: "0" }}
             >
               {opt.value === src.value ? "✅" : "⬜"}
             </div>

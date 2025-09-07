@@ -1,43 +1,77 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Container from "@/components/Container";
 import { useRouter, useSearchParams } from "next/navigation";
 import CloseNavigation from "@/components/CloseNavigation";
+import { postRequest } from "@/helper/api";
+
+type MateriContent = {
+  id: string;
+  content: string;
+  order_number: number;
+};
 
 export default function Page() {
   const params = useSearchParams();
   const [page, setPage] = useState(1);
+  const [items, setItems] = useState<MateriContent[]>([]);
   const router = useRouter();
-  const items = [
-    {
-      page: 1,
-      content: `
-<iframe
-  width="100%"
-  height="215"
-  src="https://www.youtube.com/embed/rvdvkw367R8"
-  title="Dota 2 WTF Moments 598"
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share">
-</iframe>
-<p style="color: black; margin-top: 15px; line-height: 1.5;">
-  Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has
-  been the industry standard dummy text ever since the 1500s, when an unknown printer took a
-  galley of type and scrambled it to make a type specimen book.
-</p>
-<p style="line-height: 1.5; margin-top: 15px;color: black; ">
-  It has survived not only five centuries, but also the leap into electronic typesetting,
-  remaining essentially unchanged. It was popularised in the 1960s with the release of
-  Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing
-  software like Aldus PageMaker including versions of Lorem Ipsum.
-</p>`,
-    },
-    {
-      page: 2,
-      content: `<p style="color: black; margin-top: 15px; line-height: 1.5;">
-      This is the content of page 2.`,
-    },
-  ];
+
+  const submitDone = useCallback(() => {
+    const token = localStorage.getItem("token-platform-belajar");
+    const materi_id = params.get("id");
+    const kompetensi_id = params.get("parent_id");
+    const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
+    postRequest(
+      "/learning/materi/done",
+      {
+        user_id: user.id,
+        materi_id,
+        kompetensi_id,
+      },
+      {
+        Authorization: `Bearer ${token}`,
+      }
+    ).finally(() => {
+      router.back();
+    });
+  }, [params, router]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token-platform-belajar");
+        const materiId = params.get("id");
+
+        if (!token || !materiId) return;
+
+        const res = await fetch(`/api/learning/materi/${materiId}/content`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok && res.status === 401) {
+          router.replace("/auth");
+          return;
+        }
+
+        const data = await res.json();
+        // Pastikan urut sesuai order
+        setItems(
+          (data?.data || []).sort(
+            (a: MateriContent, b: MateriContent) => a.order_number - b.order_number
+          )
+        );
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchData();
+  }, [params]);
+
   return (
     <Container>
       <CloseNavigation>
@@ -67,7 +101,9 @@ export default function Page() {
           </p>
         </div>
         <div
-          dangerouslySetInnerHTML={{ __html: items.find((el) => el.page === page)?.content || "" }}
+          dangerouslySetInnerHTML={{
+            __html: items.find((el) => el.order_number === page)?.content || "",
+          }}
         ></div>
       </div>
       <div
@@ -90,16 +126,17 @@ export default function Page() {
             flexGrow: "1",
             background: "#c6c6c6",
             color: "black",
+            cursor: "pointer",
           }}
         >
-          Sebelumnya{" "}
+          Sebelumnya
         </div>
         <div
           onClick={() => {
             if (page < items.length) {
-              setPage((prev) => (prev < items.length ? prev + 1 : prev));
+              setPage((prev) => prev + 1);
             } else {
-              router.back();
+              submitDone();
             }
           }}
           style={{
@@ -108,6 +145,7 @@ export default function Page() {
             flexGrow: "1",
             background: "#69CA87",
             color: "white",
+            cursor: "pointer",
           }}
         >
           {page === items.length ? "Selesai" : "Selanjutnya"}

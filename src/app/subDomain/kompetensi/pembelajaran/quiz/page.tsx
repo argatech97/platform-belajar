@@ -13,31 +13,26 @@ import {
   AnswerForm,
   AnswerFormValue,
   CoupleingValue,
+  ICoupleing,
+  IMultipleChoice,
+  IMultipleSelect,
   IOption,
   IOptionWithType,
-  OptionQuestioner,
+  IQuestioner,
+  IQuestionForm,
+  IShortAnswer,
   QuestionerValue,
   ShortAnswerValue,
-  SourceQuestioner,
 } from "@/app/types/answerForm";
 import MultipleChoice from "@/components/bentukJawaban/MultipleChoice";
-import { quizDummy, content } from "./questionDummy";
 import MultipleSelect from "@/components/bentukJawaban/MultipleSelect";
 import Questioner from "@/components/bentukJawaban/Questioner";
 import Coupleing from "@/components/bentukJawaban/Coupleing";
 import ShortAnswer from "@/components/bentukJawaban/ShortAnswer";
-import { time } from "console";
-
-// Refactor notes:
-// - use numeric currentIndex instead of separate id states
-// - store answers in a dictionary for O(1) lookup
-// - persist answers + currentIndex to localStorage
-// - submit automatically on countdown end or when user clicks `Akhiri!` with scoring rules
-// - adapted to quizDummy schema (correctAnswer property names)
+import { mapEntitiesToQuestions } from "@/helper/mapSoalFromDB";
 
 type AnswersMap = Record<string, { type: AnswerForm; value: AnswerFormValue }>;
 
-const STORAGE_KEY = "quiz-state-v1";
 const POINT_PER_QUESTION = 5;
 
 type TypePercentage = {
@@ -76,14 +71,16 @@ export default function Page() {
   const router = useRouter();
 
   // state
+  const [testData, setTestData] = useState<IQuestionForm[]>([]);
+  const [content, setContent] = useState<{ id: string; value: string }[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [answers, setAnswers] = useState<AnswersMap>({});
   const [opsiPilihanGanda, setOpsiPilihanGanda] = useState<IOptionWithType[] | undefined>(
     undefined
   );
   const [questionerResource, setQuestionerResource] = useState<{
-    source: SourceQuestioner;
-    option: OptionQuestioner;
+    source: IOption<string>[];
+    option: IOption<string>[];
   } | null>(null);
   const [coupleingResource, setCoupleingResource] = useState<{
     source: IOption<string>[];
@@ -93,27 +90,76 @@ export default function Page() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // derived: active item and content
-  const activeItem = useMemo(() => quizDummy[currentIndex], [currentIndex]);
+  const activeItem = useMemo(() => testData[currentIndex], [currentIndex, testData]);
 
   const contentActive = useMemo(() => {
     if (!activeItem) return "";
     return content.find((c) => c.id === activeItem.contentId)?.value || "";
-  }, [activeItem]);
+  }, [activeItem, content]);
 
   const isAnsweredSet = useMemo(() => new Set(Object.keys(answers)), [answers]);
 
   // expose active answer typed
   const activeAnswer = useMemo(() => answers[activeItem?.id || ""], [answers, activeItem]);
 
-  const availableTime = useMemo(() => 10 * 60, []);
+  const availableTime = Number(params.get("duration") || 0);
+
+  const STORAGE_KEY = params.get("name") || "test";
 
   const [timeLeft, setTimeLeft] = useState<number>();
+
+  useEffect(() => {
+    const testId = params.get("id");
+    if (!testId) return;
+
+    const localTest = localStorage.getItem("soal-aktif-platfomr-belajar");
+    const localContent = localStorage.getItem("content-aktif-platform-belajar");
+
+    if (localTest && localContent) {
+      // kalau ada di localStorage → pakai itu
+      setTestData(JSON.parse(localTest));
+      setContent(JSON.parse(localContent));
+      return;
+    }
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token-platform-belajar");
+
+        // fetch soal test
+        const resTest = await fetch(`/api/question/${testId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (resTest.ok) {
+          const data = await resTest.json();
+          const mappingData = await mapEntitiesToQuestions(data.data);
+          setTestData(mappingData);
+          localStorage.setItem("soal-aktif-platfomr-belajar", JSON.stringify(mappingData));
+        }
+
+        // fetch konten test
+        const resContent = await fetch(`/api/content/${testId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (resContent.ok) {
+          const data = await resContent.json();
+          setContent(
+            data.data.map((el: { id: string; data: string }) => ({ id: el.id, value: el.data }))
+          );
+          localStorage.setItem("content-aktif-platfomr-belajar", JSON.stringify(data.data));
+        }
+      } catch (err) {
+        console.error("Failed to fetch test/content", err);
+      }
+    };
+
+    fetchData();
+  }, [params]);
 
   useEffect(() => {
     const x = localStorage.getItem("timeLeft")
       ? JSON.parse(localStorage.getItem("timeLeft") || "0")
       : availableTime;
-    console.log(x);
+
     setTimeLeft(x);
   }, [availableTime]);
 
@@ -130,7 +176,7 @@ export default function Page() {
           if (
             typeof parsed.currentIndex === "number" &&
             parsed.currentIndex >= 0 &&
-            parsed.currentIndex < quizDummy.length
+            parsed.currentIndex < testData.length
           ) {
             setCurrentIndex(parsed.currentIndex);
           }
@@ -156,25 +202,31 @@ export default function Page() {
     if (!activeItem) return;
 
     if (activeItem.type === "multiple-choice" || activeItem.type === "multiple-select") {
-      setOpsiPilihanGanda(activeItem.option);
+      setOpsiPilihanGanda((activeItem as IMultipleChoice | IMultipleSelect).option);
     } else {
       setOpsiPilihanGanda(undefined);
     }
 
     if (activeItem.type === "questioner") {
-      setQuestionerResource({ source: activeItem.source, option: activeItem.option });
+      setQuestionerResource({
+        source: (activeItem as IQuestioner).source,
+        option: (activeItem as IQuestioner).target,
+      });
     } else {
       setQuestionerResource(null);
     }
 
     if (activeItem.type === "coupleing") {
-      setCoupleingResource({ source: activeItem.source, target: activeItem.target });
+      setCoupleingResource({
+        source: (activeItem as ICoupleing).source,
+        target: (activeItem as ICoupleing).target,
+      });
     } else {
       setCoupleingResource(null);
     }
 
     if (activeItem.type === "short-answer") {
-      setTypeOfAnswer(activeItem.typeOfAnswer || "text");
+      setTypeOfAnswer((activeItem as IShortAnswer).typeOfAnswer || "text");
     }
   }, [activeItem]);
 
@@ -187,7 +239,7 @@ export default function Page() {
 
   // handlers
   const goToIndex = useCallback((index: number) => {
-    if (index < 0 || index >= quizDummy.length) return;
+    if (index < 0 || index >= testData.length) return;
     setCurrentIndex(index);
   }, []);
 
@@ -426,112 +478,122 @@ export default function Page() {
     }
   };
 
-  const computeAndSavePercentageByType = useCallback((answers: AnswersMap) => {
-    const byType: Record<string, any[]> = {};
-    quizDummy.forEach((q) => {
-      if (!byType[q.type]) byType[q.type] = [];
-      byType[q.type].push(q);
-    });
-
-    const result: TypePercentage[] = Object.keys(byType).map((type) => {
-      const items = byType[type];
-      const maxTotal = items.length * POINT_PER_QUESTION;
-      let obtained = 0;
-      let correct = 0;
-
-      items.forEach((q) => {
-        const ans = answers[q.id];
-        const score = scoreForQuestion(q, ans);
-        obtained += score;
-        if (score === POINT_PER_QUESTION) correct++;
+  const computeAndSavePercentageByType = useCallback(
+    (answers: AnswersMap) => {
+      const byType: Record<string, any[]> = {};
+      testData.forEach((q) => {
+        if (!byType[q.type]) byType[q.type] = [];
+        byType[q.type].push(q);
       });
 
-      const percentage = maxTotal === 0 ? 0 : Math.round((obtained / maxTotal) * 10000) / 100;
+      const result: TypePercentage[] = Object.keys(byType).map((type) => {
+        const items = byType[type];
+        const maxTotal = items.length * POINT_PER_QUESTION;
+        let obtained = 0;
+        let correct = 0;
 
-      return {
-        type: type as AnswerForm,
-        label: LABEL_BY_TYPE[type],
-        percentage,
-        totalQuestions: items.length,
-        correctQuestions: correct,
-      };
-    });
+        items.forEach((q) => {
+          const ans = answers[q.id];
+          const score = scoreForQuestion(q, ans);
+          obtained += score;
+          if (score === POINT_PER_QUESTION) correct++;
+        });
 
-    localStorage.setItem("percentageByType", JSON.stringify(result));
-    return result;
-  }, []);
+        const percentage = maxTotal === 0 ? 0 : Math.round((obtained / maxTotal) * 10000) / 100;
 
-  const computeAndSavePercentageByDomain = useCallback((answers: AnswersMap) => {
-    const byDomain: Record<string, any[]> = {};
-    quizDummy.forEach((q) => {
-      const id = (q as any).domainId ?? "unknown";
-      if (!byDomain[id]) byDomain[id] = [];
-      byDomain[id].push(q);
-    });
+        return {
+          type: type as AnswerForm,
+          label: LABEL_BY_TYPE[type],
+          percentage,
+          totalQuestions: items.length,
+          correctQuestions: correct,
+        };
+      });
+      console.log(result);
 
-    const result: DomainPercentage[] = Object.keys(byDomain).map((id) => {
-      const items = byDomain[id];
-      const maxTotal = items.length * POINT_PER_QUESTION;
-      let obtained = 0;
-      let correct = 0;
+      localStorage.setItem("percentageByType", JSON.stringify(result));
+      return result;
+    },
+    [testData, answers]
+  );
 
-      items.forEach((q) => {
-        const ans = answers[q.id];
-        const score = scoreForQuestion(q, ans);
-        obtained += score;
-        if (score === POINT_PER_QUESTION) correct++;
+  const computeAndSavePercentageByDomain = useCallback(
+    (answers: AnswersMap) => {
+      const byDomain: Record<string, any[]> = {};
+      testData.forEach((q) => {
+        const id = (q as any).domainId ?? "unknown";
+        if (!byDomain[id]) byDomain[id] = [];
+        byDomain[id].push(q);
       });
 
-      const percentage = maxTotal === 0 ? 0 : Math.round((obtained / maxTotal) * 10000) / 100;
+      const result: DomainPercentage[] = Object.keys(byDomain).map((id) => {
+        const items = byDomain[id];
+        const maxTotal = items.length * POINT_PER_QUESTION;
+        let obtained = 0;
+        let correct = 0;
 
-      return {
-        domainId: id,
-        domain: (items[0] as any).domain ?? id,
-        percentage,
-        totalQuestions: items.length,
-        correctQuestions: correct,
-      };
-    });
+        items.forEach((q) => {
+          const ans = answers[q.id];
+          const score = scoreForQuestion(q, ans);
+          obtained += score;
+          if (score === POINT_PER_QUESTION) correct++;
+        });
 
-    localStorage.setItem("percentageByDomain", JSON.stringify(result));
-    return result;
-  }, []);
+        const percentage = maxTotal === 0 ? 0 : Math.round((obtained / maxTotal) * 10000) / 100;
 
-  const computeAndSavePercentageBySubDomain = useCallback((answers: AnswersMap) => {
-    const bySub: Record<string, any[]> = {};
-    quizDummy.forEach((q) => {
-      const id = (q as any).subDomainId ?? "unknown";
-      if (!bySub[id]) bySub[id] = [];
-      bySub[id].push(q);
-    });
-
-    const result: SubDomainPercentage[] = Object.keys(bySub).map((id) => {
-      const items = bySub[id];
-      const maxTotal = items.length * POINT_PER_QUESTION;
-      let obtained = 0;
-      let correct = 0;
-
-      items.forEach((q) => {
-        const ans = answers[q.id];
-        const score = scoreForQuestion(q, ans);
-        obtained += score;
-        if (score === POINT_PER_QUESTION) correct++;
+        return {
+          domainId: id,
+          domain: (items[0] as any).domain ?? id,
+          percentage,
+          totalQuestions: items.length,
+          correctQuestions: correct,
+        };
       });
 
-      const percentage = maxTotal === 0 ? 0 : Math.round((obtained / maxTotal) * 10000) / 100;
+      localStorage.setItem("percentageByDomain", JSON.stringify(result));
+      return result;
+    },
+    [testData, answers]
+  );
 
-      return {
-        subDomainId: id,
-        subDomain: (items[0] as any).subDomain ?? id,
-        percentage,
-        totalQuestions: items.length,
-        correctQuestions: correct,
-      };
-    });
+  const computeAndSavePercentageBySubDomain = useCallback(
+    (answers: AnswersMap) => {
+      const bySub: Record<string, any[]> = {};
+      testData.forEach((q) => {
+        const id = (q as any).subDomainId ?? "unknown";
+        if (!bySub[id]) bySub[id] = [];
+        bySub[id].push(q);
+      });
 
-    localStorage.setItem("percentageBySubDomain", JSON.stringify(result));
-    return result;
-  }, []);
+      const result: SubDomainPercentage[] = Object.keys(bySub).map((id) => {
+        const items = bySub[id];
+        const maxTotal = items.length * POINT_PER_QUESTION;
+        let obtained = 0;
+        let correct = 0;
+
+        items.forEach((q) => {
+          const ans = answers[q.id];
+          const score = scoreForQuestion(q, ans);
+          obtained += score;
+          if (score === POINT_PER_QUESTION) correct++;
+        });
+
+        const percentage = maxTotal === 0 ? 0 : Math.round((obtained / maxTotal) * 10000) / 100;
+
+        return {
+          subDomainId: id,
+          subDomain: (items[0] as any).subDomain ?? id,
+          percentage,
+          totalQuestions: items.length,
+          correctQuestions: correct,
+        };
+      });
+
+      localStorage.setItem("percentageBySubDomain", JSON.stringify(result));
+      return result;
+    },
+    [testData, answers]
+  );
 
   // main submit function -------------------------------------------------
   const submitAnswers = useCallback(
@@ -541,8 +603,8 @@ export default function Page() {
 
       try {
         let totalScore = 0;
-        // iterate through quizDummy to compute per-question score
-        quizDummy.forEach((q) => {
+        // iterate through testData to compute per-question score
+        testData.forEach((q) => {
           const qId = q.id;
           const ans = answers[qId];
           const correct =
@@ -573,7 +635,7 @@ export default function Page() {
         const rounded = Math.round((totalScore + Number.EPSILON) * 100) / 100;
 
         const testName = params.get("navbarTitle") || "Test";
-        const max = quizDummy.length * POINT_PER_QUESTION;
+        const max = testData.length * POINT_PER_QUESTION;
         const elapsedSeconds = (availableTime ?? 0) - (timeLeft ?? 0);
         const minutes = Math.floor(elapsedSeconds / 60);
         const seconds = elapsedSeconds % 60;
@@ -584,6 +646,7 @@ export default function Page() {
           score: rounded,
           testName,
           testTime: formattedElapsed,
+          closePath: `/subDomain/kompetensi/pembelajaran?id=${params.get("id")}&navbarTitle=${params.get("kompetensi")}`,
         };
         // clear saved state
         try {
@@ -592,7 +655,6 @@ export default function Page() {
           computeAndSavePercentageByType(answers);
           computeAndSavePercentageByDomain(answers);
           computeAndSavePercentageBySubDomain(answers);
-          setTimeLeft(undefined);
           localStorage.removeItem("timeLeft");
           localStorage.removeItem(STORAGE_KEY);
         } catch (e) {
@@ -600,7 +662,7 @@ export default function Page() {
         }
 
         // navigate to score page with score data as query params
-        router.push(`/skor?closePath=/domain/modul`);
+        router.push(`/skor`);
       } finally {
         setIsSubmitting(false);
       }
@@ -645,15 +707,7 @@ export default function Page() {
             <b>{params.get("navbarTitle") || ""}</b>
           </p>
           {/* pass submit handler to Countdown as onEnd/onComplete if supported */}
-          {timeLeft && (
-            <Countdown
-              timeLeft={timeLeft}
-              onEnd={submitAnswers}
-              onChange={(timeLeft: number) => {
-                setTimeLeft(timeLeft);
-              }}
-            />
-          )}
+          {timeLeft && <Countdown initialTime={timeLeft} onEnd={submitAnswers} />}
           {timeLeft && (
             <button
               onClick={() => submitAnswers(timeLeft)}
@@ -743,7 +797,7 @@ export default function Page() {
           flexWrap: "wrap",
         }}
       >
-        {quizDummy.map((item, index) => (
+        {testData.map((item, index) => (
           <CircleButton
             key={item.id}
             onClick={() => {

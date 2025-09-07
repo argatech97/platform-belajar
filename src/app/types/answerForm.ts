@@ -1,4 +1,4 @@
-interface ISoal<X, Y> {
+export interface ISoal<X, Y> {
   id: string;
   question: string;
   contentId?: string;
@@ -9,6 +9,8 @@ interface ISoal<X, Y> {
   domain: string;
   subDomain: string;
   subDomainId: string;
+  kompetensi: string;
+  kompetensiId: string;
 }
 
 export type MultipleChoice = "multiple-choice";
@@ -31,7 +33,7 @@ export type CoupleingValue = { sourceId: string; targetId: string }[];
 
 export type ShortAnswerValue = string | number;
 
-export type QuestionerValue = { sourceId: string; value: string }[];
+export type QuestionerValue = { sourceId: string; targetId: string }[];
 
 export type AnswerFormValue =
   | MultipleChoiceValue
@@ -69,12 +71,9 @@ export interface ICoupleing extends ISoal<Coupleing, CoupleingValue> {
 export interface IShortAnswer extends ISoal<ShortAnswer, (string | number)[]> {
   typeOfAnswer: "number" | "text";
 }
-
-export type SourceQuestioner = { id: string; content: string }[];
-export type OptionQuestioner = { value: string; content: string }[];
 export interface IQuestioner extends ISoal<Questioner, QuestionerValue> {
-  source: SourceQuestioner;
-  option: OptionQuestioner;
+  source: IOption<string>[];
+  target: IOption<string>[];
 }
 
 export type IQuestionForm =
@@ -83,3 +82,26 @@ export type IQuestionForm =
   | ICoupleing
   | IMultipleSelect
   | IMultipleChoice;
+
+export interface IQuestionEntityData {
+  option?: IOptionWithType[];
+  source?: IOption<string>[];
+  target?: IOption<string>[];
+  typeOfAnswer?: "number" | "text";
+  correctAnswer: AnswerFormValue;
+}
+export interface IQuestionEntity {
+  id: string; // uuid
+  content_id: string; // uuid
+  domain_id: string; // uuid
+  domain_name: string; // varchar(50)
+  sub_domain_id: string; // uuid
+  sub_domain_name: string; // varchar(100)
+  kompetensi_id: string; // uuid
+  kompetensi_name: string; // text
+  question_type_id: string; // uuid
+  question_type_name: string; // varchar(100)
+  data: IQuestionEntityData; // json (disimpan sebagai stringified JSON)
+  test_id: string; // uuid
+  question: string;
+}

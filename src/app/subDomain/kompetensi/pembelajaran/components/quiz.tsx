@@ -5,7 +5,7 @@ const Quiz = React.memo(function Quiz({
   items,
   onClickItem,
 }: {
-  onClickItem: (title: string, id: string) => void;
+  onClickItem: (title: string, id: string, minute: number) => void;
   items: {
     title: string;
     countQuestion: number;
@@ -18,8 +18,7 @@ const Quiz = React.memo(function Quiz({
       {items.map((item, index) => (
         <Card
           onClick={() => {
-            localStorage.removeItem("timeLeft");
-            onClickItem(item.title, item.id);
+            onClickItem(item.title, item.id, item.minute);
           }}
           key={index}
           title={item.title}

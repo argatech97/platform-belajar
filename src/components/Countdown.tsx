@@ -1,28 +1,30 @@
 import React, { useEffect, useState } from "react";
 
 export default function Countdown({
-  timeLeft,
+  initialTime,
   onEnd,
-  onChange,
 }: {
-  timeLeft: number;
-  onEnd: (timeLeft: number) => Promise<void>;
-  onChange: (timeLeft: number) => void;
+  initialTime: number;
+  onEnd: (timeLeft: number) => void;
 }) {
+  const [timeLeft, setTimeLeft] = useState(initialTime);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const newValue = timeLeft - 1;
+      localStorage.setItem("timeLeft", `${newValue}`);
+      setTimeLeft(newValue);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, onEnd]);
+
   useEffect(() => {
     if (timeLeft <= 0) {
       onEnd(timeLeft);
       return;
     }
-
-    const timer = setInterval(() => {
-      const newValue = timeLeft - 1;
-      localStorage.setItem("timeLeft", `${newValue}`);
-      onChange(newValue);
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [onChange, onEnd, timeLeft]);
+  }, [onEnd, timeLeft]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

@@ -33,6 +33,8 @@ const multipleChoice: IMultipleChoice[] = [
     domain: "Literasi",
     subDomain: "Mengakses dan Menemukan Informasi",
     subDomainId: "1",
+    kompetensi: "",
+    kompetensiId: "",
   },
 ];
 
@@ -54,6 +56,8 @@ const multipleSelect: IMultipleSelect[] = [
     domain: "Literasi",
     subDomain: "Menginterpretasi dan Mengintegrasi",
     subDomainId: "2",
+    kompetensi: "",
+    kompetensiId: "",
   },
 ];
 
@@ -62,16 +66,16 @@ const questioner: IQuestioner[] = [
     contentId: "1",
     source: [
       {
-        id: "a",
+        value: "a",
         content: "Bangunan yang berada di paling utara adalah KUA, Rumah Sinta dan Rumah Sari ",
       },
       {
-        id: "b",
+        value: "b",
         content:
           "Masjid bersebrangan dengan Lapangan di sisi barat dan bersebrangan dengan SD Brilian Jaya di sisi utara",
       },
     ],
-    option: [
+    target: [
       { content: "Benar", value: "1" },
       { content: "Tidak Benar", value: "0" },
     ],
@@ -79,14 +83,16 @@ const questioner: IQuestioner[] = [
     question: "<p>Di bawah ini tentukan keterangan yang benar  dan tidak benar </p>",
     type: "questioner",
     correctAnswer: [
-      { sourceId: "a", value: "1" },
-      { sourceId: "b", value: "1" },
+      { sourceId: "a", targetId: "1" },
+      { sourceId: "b", targetId: "1" },
     ],
     orderNumber: 3,
     domainId: "1",
     domain: "Literasi",
     subDomain: "Mengevaluasi dan Merefleksi",
     subDomainId: "3",
+    kompetensi: "",
+    kompetensiId: "",
   },
 ];
 
@@ -103,6 +109,8 @@ const shortAnswer: IShortAnswer[] = [
     domain: "Literasi",
     subDomain: "Mengevaluasi dan Merefleksi",
     subDomainId: "3",
+    kompetensi: "",
+    kompetensiId: "",
   },
 ];
 
@@ -143,6 +151,8 @@ const coupleing: ICoupleing[] = [
     domain: "Literasi",
     subDomain: "Mengakses dan Menemukan Informasi",
     subDomainId: "1",
+    kompetensi: "",
+    kompetensiId: "",
   },
 ];
 

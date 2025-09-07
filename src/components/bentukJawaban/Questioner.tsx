@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { QuestionerValue } from "../../app/types/answerForm";
+import { IOption, QuestionerValue } from "../../app/types/answerForm";
 
 export default function Questioner({
   source,
@@ -7,17 +7,17 @@ export default function Questioner({
   value,
   onClick,
 }: {
-  source: { id: string; content: string }[];
-  option: { value: string; content: string }[];
+  source: IOption<string>[];
+  option: IOption<string>[];
   value: QuestionerValue;
   onClick: (value: QuestionerValue) => void;
 }) {
   const optionList = useMemo(() => {
     return source.map((el) => {
       return {
-        sourceId: el.id,
+        sourceId: el.value,
         content: el.content,
-        value: value.find((v) => v.sourceId === el.id)?.value || "",
+        value: value.find((v) => v.sourceId === el.value)?.targetId || "",
       };
     });
   }, [source, value]);
@@ -55,7 +55,7 @@ export default function Questioner({
                 const newValue = optionList.map((item, i) =>
                   i === index ? { ...item, value: opt.value } : item
                 );
-                onClick(newValue.map((el) => ({ sourceId: el.sourceId, value: el.value })));
+                onClick(newValue.map((el) => ({ sourceId: el.sourceId, targetId: el.value })));
               }}
               key={idx}
               style={{ padding: "10px", textAlign: "center", width: "100px", flexShrink: "0" }}

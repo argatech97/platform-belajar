@@ -4,7 +4,6 @@ import Container from "../../components/Container";
 import CloseNavigation from "../../components/CloseNavigation";
 import CircleWithInner from "../../components/CircleShape";
 import Card from "../../components/Card";
-import { useSearchParams } from "next/navigation";
 
 export default function Page() {
   const [testResult, setTestResult] = useState<{
@@ -12,6 +11,7 @@ export default function Page() {
     score: number;
     testName: string;
     testTime: string;
+    closePath: "/";
   }>();
   const [percentageByAnswerType, setPercentageByAnswerType] = useState<
     {
@@ -31,8 +31,6 @@ export default function Page() {
   const [percentageByDomain, setPercentageByDomain] =
     useState<{ percentage: number; totalQuestion: number; domain: string }[]>();
 
-  const closeLink = useSearchParams().get("closePath");
-
   useEffect(() => {
     setTestResult(JSON.parse(localStorage.getItem("testResult") || ""));
     setPercentageByAnswerType(JSON.parse(localStorage.getItem("percentageByType") || ""));
@@ -42,7 +40,7 @@ export default function Page() {
 
   return (
     <Container>
-      <CloseNavigation destinationLink={closeLink || undefined}>
+      <CloseNavigation destinationLink={testResult?.closePath}>
         <p style={{ color: "black" }}>
           <b>Skor : {testResult?.testName}</b>
         </p>

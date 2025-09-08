@@ -784,7 +784,7 @@ export default function Page() {
       }
 
       // navigate to score page
-      router.push(`/skor`);
+      router.push(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
     } finally {
       setIsSubmitting(false);
     }

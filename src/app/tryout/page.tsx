@@ -105,21 +105,25 @@ export default function Page() {
       ) : (
         <div style={{ display: "flex", gap: "10px", flexDirection: "column" }}>
           <BackNavigation label={"Try Out"} />
-          <p style={{ lineHeight: 1.5 }}>
-            Latihan berkala lewat Try Out untuk tingkatkan kompetensimu. Pantau setiap hari untuk
-            cek kesediaan try out baru
-          </p>
-          <TableSingleColumn title={"Live Try Out"} items={data} />
+          <div
+            style={{ display: "flex", flexDirection: "column", padding: "10px 20px", gap: "15px" }}
+          >
+            <p style={{ lineHeight: 1.5 }}>
+              Latihan berkala lewat Try Out untuk tingkatkan kompetensimu. Pantau setiap hari untuk
+              cek kesediaan try out baru
+            </p>
+            <TableSingleColumn title={"Live Try Out"} items={data} />
 
-          <TableSingleColumn
-            title={"Try Out Mandiri"}
-            items={[
-              {
-                title: "Segera hadir",
-                description: "Try out mandiri belum tersedia",
-              },
-            ]}
-          />
+            <TableSingleColumn
+              title={"Try Out Mandiri"}
+              items={[
+                {
+                  title: "Segera hadir",
+                  description: "Try out mandiri belum tersedia",
+                },
+              ]}
+            />
+          </div>
         </div>
       )}
     </Container>

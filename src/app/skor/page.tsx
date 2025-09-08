@@ -4,8 +4,11 @@ import Container from "../../components/Container";
 import CloseNavigation from "../../components/CloseNavigation";
 import CircleWithInner from "../../components/CircleShape";
 import Card from "../../components/Card";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function Page() {
+  const router = useRouter();
+  const params = useSearchParams();
   const [testResult, setTestResult] = useState<{
     maximumScore: number;
     score: number;
@@ -156,6 +159,9 @@ export default function Page() {
         </div>
       </div>
       <div
+        onClick={() => {
+          router.push(`/ranking?id=${params.get("id")}&title=${params.get("name")}`);
+        }}
         style={{
           position: "sticky",
           left: 0,
@@ -166,7 +172,7 @@ export default function Page() {
           color: "white",
         }}
       >
-        Pembahasan ➡️
+        Ranking ➡️
       </div>
     </Container>
   );

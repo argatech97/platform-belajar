@@ -50,6 +50,7 @@ export default function TableSingleColumn({
                       lineHeight: 1.5,
                       padding: "0px 5px",
                       cursor: "pointer",
+                      gap: "10px",
                     }}
                   >
                     <p style={{ fontWeight: "bold", color: secondaryColor || "#69CA87" }}>

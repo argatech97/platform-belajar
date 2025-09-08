@@ -30,7 +30,10 @@ export default function Page() {
           Authorization: `Bearer ${localStorage.getItem("token-platform-belajar") || ""}`,
         },
       });
-      if (!res.ok && res.status === 401) throw new Error("Gagal mengambil data sub domain");
+      if (!res.ok && res.status === 401) {
+        router.push("/auth");
+        return;
+      }
       const data = await res.json();
 
       // Map hasil API ke bentuk yang Card butuhkan

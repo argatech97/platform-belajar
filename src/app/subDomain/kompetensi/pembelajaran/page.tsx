@@ -28,6 +28,7 @@ export default function Page() {
   const router = useRouter();
 
   const [materi, setMateri] = useState<MateriItem[]>([]);
+  const [testTypeId, setTestTypeId] = useState<string>();
   const [materiDone, setMateriDone] = useState<string[]>([]);
   const [quiz, setQuiz] = useState<QuizItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -79,6 +80,28 @@ export default function Page() {
       }
     };
 
+    const fetchTestTypeId = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/test/type`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token-platform-belajar")}`,
+          },
+        });
+        if (!res.ok && res.status === 401) {
+          router.replace("/auth");
+          return;
+        }
+        const data = await res.json();
+        console.log(data);
+        setTestTypeId(data.data.find((el: { name: string }) => el.name === "Quiz").id || "");
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     const fetchQuiz = async () => {
       try {
         const res = await fetch(`/api/test/parent/${kompetensiId}`, {
@@ -97,8 +120,14 @@ export default function Page() {
       }
     };
 
-    // jalankan berurutan
-    fetchMateri().then(fetchMateriDone).then(fetchQuiz);
+    const fetchAll = async () => {
+      await fetchTestTypeId();
+      await fetchMateriDone();
+      await fetchMateri();
+      await fetchQuiz();
+    };
+
+    fetchAll();
   }, [kompetensiId, router]);
 
   const onClickItemMateri = useCallback(
@@ -113,11 +142,12 @@ export default function Page() {
   const onClickItemQuiz = useCallback(
     (title: string, id: string, minute: number) => {
       localStorage.removeItem("timeLeft");
-      router.push(
-        `/subDomain/kompetensi/pembelajaran/quiz?navbarTitle=${title}&id=${id}&duration=${minute * 60}&kompetensi=${params.get("navbarTitle")}`
+      window.open(
+        `/subDomain/kompetensi/pembelajaran/quiz?name=${title}&navbarTitle=${title}&id=${id}&duration=${minute * 60}&kompetensi=${params.get("navbarTitle")}&testType=Quiz&testTypeId=${testTypeId}`,
+        "_blank"
       );
     },
-    [router]
+    [params, testTypeId]
   );
 
   return (

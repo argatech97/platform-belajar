@@ -1,12 +1,9 @@
 import {
   AnswerForm,
-  AnswerFormValue,
   CoupleingValue,
   ICoupleing,
   IMultipleChoice,
   IMultipleSelect,
-  IOption,
-  IOptionWithType,
   IQuestionEntity,
   IQuestionEntityData,
   IQuestioner,

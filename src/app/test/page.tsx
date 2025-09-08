@@ -82,7 +82,7 @@ export default function Page() {
   // state
   const [testData, setTestData] = useState<IQuestionForm[]>([]);
   const [content, setContent] = useState<{ id: string; value: string }[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentIndex, setCurrentIndex] = useState<number>();
   const [answers, setAnswers] = useState<AnswersMap>({});
   const [opsiPilihanGanda, setOpsiPilihanGanda] = useState<IOptionWithType[] | undefined>(
     undefined
@@ -99,10 +99,10 @@ export default function Page() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // derived: active item and content
-  const activeItem = useMemo(() => testData[currentIndex], [currentIndex, testData]);
-
+  const activeItem = useMemo(() => testData[currentIndex || 0], [currentIndex, testData]);
   const contentActive = useMemo(() => {
     if (!activeItem) return "";
+    console.log(content, activeItem, "taik 2");
     return content.find((c) => c.id === activeItem.contentId)?.value || "";
   }, [activeItem, content]);
 
@@ -130,6 +130,7 @@ export default function Page() {
       // kalau ada di localStorage → pakai itu
       setTestData(JSON.parse(localTest));
       setContent(JSON.parse(localContent));
+      setCurrentIndex(0);
       return;
     }
     const fetchData = async () => {
@@ -145,21 +146,27 @@ export default function Page() {
           const mappingData = await mapEntitiesToQuestions(data.data);
           setTestData(mappingData);
           localStorage.setItem("soal-aktif-platform-belajar", JSON.stringify(mappingData));
+          console.log("jiaah");
+          setCurrentIndex(0);
         } else if (!resTest.ok && resTest.status === 401) {
           router.replace("/auth");
           return;
         }
 
         // fetch konten test
+
         const resContent = await fetch(`/api/content/${testId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (resContent.ok) {
           const data = await resContent.json();
-          setContent(
-            data.data.map((el: { id: string; data: string }) => ({ id: el.id, value: el.data }))
-          );
-          localStorage.setItem("content-aktif-platform-belajar", JSON.stringify(data.data));
+          const contentDatas = data.data.map((el: { id: string; data: string }) => ({
+            id: el.id,
+            value: el.data,
+          }));
+
+          setContent(contentDatas);
+          localStorage.setItem("content-aktif-platform-belajar", JSON.stringify(contentDatas));
         } else if (!resTest.ok && resTest.status === 401) {
           router.replace("/auth");
           return;
@@ -256,10 +263,22 @@ export default function Page() {
   }, [answers]);
 
   // handlers
-  const goToIndex = useCallback((index: number) => {
-    if (index < 0 || index >= testData.length) return;
-    setCurrentIndex(index);
-  }, []);
+  const goToIndex = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= testData.length) return;
+      setCurrentIndex(index);
+    },
+    [testData]
+  );
+
+  const handleNext = useCallback(() => {
+    const newvalue =
+      currentIndex !== undefined && currentIndex < testData.length - 1
+        ? currentIndex + 1
+        : currentIndex;
+    console.log(newvalue);
+    setCurrentIndex(newvalue);
+  }, [testData, currentIndex]);
 
   const setAnswer = useCallback(
     (id: string, type: AnswerForm, value: AnswerFormValue | null) => {
@@ -540,7 +559,6 @@ export default function Page() {
           correctQuestions: correct,
         };
       });
-      console.log(result);
 
       localStorage.setItem("percentageByType", JSON.stringify(result));
       return result;
@@ -706,7 +724,6 @@ export default function Page() {
       const testName = params.get("navbarTitle") || "Test";
       const max = testData.length * POINT_PER_QUESTION;
       const elapsedSeconds = (availableTime ?? 0) - (timeLeft2 ?? 0);
-      console.log(availableTime, timeLeft2);
       const minutes = Math.floor(elapsedSeconds / 60);
       const seconds = elapsedSeconds % 60;
       const formattedElapsed = `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -793,7 +810,7 @@ export default function Page() {
   const handleClose = useCallback(() => {
     localStorage.removeItem("soal-aktif-platform-belajar");
     localStorage.removeItem("content-aktif-platform-belajar");
-    localStorage.removeItem("test-result");
+    localStorage.removeItem("testResult");
     localStorage.removeItem("percentageByDomain");
     localStorage.removeItem("percentageByKompetensi");
     localStorage.removeItem("percentageBySubDomain");
@@ -806,48 +823,51 @@ export default function Page() {
   // render
   return (
     <Container>
-      <CloseNavigation onClick={handleClose}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            alignItems: "center",
-          }}
-        >
-          <p
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        <CloseNavigation onClick={handleClose}>
+          <div
             style={{
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-              overflow: "hidden",
-              color: "black",
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%",
+              alignItems: "center",
             }}
           >
-            <b>{params.get("navbarTitle") || ""}</b>
-          </p>
-          {/* pass submit handler to Countdown as onEnd/onComplete if supported */}
-          {timeLeft && (
-            <Countdown initialTime={timeLeft} onEnd={submitAnswers} onChange={setTimeLeft2} />
-          )}
-          {timeLeft && (
-            <button
-              onClick={() => submitAnswers()}
-              disabled={isSubmitting}
+            <p
               style={{
-                padding: "10px",
-                borderRadius: "5px",
-                border: "none",
-                color: "white",
-                background: "#69CA87",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                color: "black",
               }}
             >
-              {isSubmitting ? "Mengirim..." : "Akhiri!"}
-            </button>
-          )}
+              <b>{params.get("navbarTitle") || ""}</b>
+            </p>
+            {/* pass submit handler to Countdown as onEnd/onComplete if supported */}
+            {timeLeft && <Countdown initialTime={timeLeft} onEnd={submitAnswers} />}
+            {timeLeft && (
+              <button
+                onClick={() => submitAnswers()}
+                disabled={isSubmitting}
+                style={{
+                  padding: "10px",
+                  borderRadius: "5px",
+                  border: "none",
+                  color: "white",
+                  background: "#69CA87",
+                }}
+              >
+                {isSubmitting ? "Mengirim..." : "Akhiri!"}
+              </button>
+            )}
+          </div>
+        </CloseNavigation>
+        <div style={{ padding: "10px 20px", fontWeight: "bolder" }}>
+          No Soal : {currentIndex !== undefined ? currentIndex + 1 : ""}
         </div>
-      </CloseNavigation>
+      </div>
 
-      <div style={{ height: "100%", overflow: "auto", padding: "20px 15px" }}>
+      <div style={{ height: "100%", overflow: "auto", padding: "10px 15px" }}>
         {contentActive && (
           <div
             style={{ color: "black", paddingBottom: "10px" }}
@@ -902,36 +922,73 @@ export default function Page() {
           />
         )}
       </div>
-
       <div
         style={{
+          display: "flex",
+          flexDirection: "column",
           position: "sticky",
           bottom: 0,
           left: 0,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          backgroundColor: "white",
-          borderTop: "0.5px solid #c6c6c6",
-          padding: "15px 10px",
-          gap: "10px",
-          flexWrap: "wrap",
         }}
       >
-        {testData.map((item, index) => (
-          <CircleButton
-            key={item.id}
-            onClick={() => {
-              goToIndex(index);
+        <div style={{ display: "flex" }}>
+          <div
+            onClick={() => setCurrentIndex((prev) => (prev && prev > 0 ? prev - 1 : prev))}
+            style={{
+              textAlign: "center",
+              padding: "20px 10px",
+              flexGrow: "1",
+              background: "#c6c6c6",
+              color: "black",
+              cursor: "pointer",
             }}
-            isAnswered={isAnsweredSet.has(item.id)}
-            isActive={index === currentIndex}
-            number={index + 1}
-            width={30}
-            height={30}
-            fontSize={12}
-          />
-        ))}
+          >
+            Sebelumnya
+          </div>
+          <div
+            onClick={handleNext}
+            style={{
+              textAlign: "center",
+              padding: "20px 10px",
+              flexGrow: "1",
+              background: "#69CA87",
+              color: "white",
+              cursor: "pointer",
+            }}
+          >
+            Selanjutnya
+          </div>
+        </div>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            backgroundColor: "white",
+            borderTop: "0.5px solid #c6c6c6",
+            padding: "15px 10px",
+            gap: "10px",
+            flexWrap: "nowrap",
+            whiteSpace: "nowrap",
+            overflowX: "auto",
+            overflowY: "hidden",
+          }}
+        >
+          {testData.map((item, index) => (
+            <CircleButton
+              key={item.id}
+              onClick={() => {
+                goToIndex(index);
+              }}
+              isAnswered={isAnsweredSet.has(item.id)}
+              isActive={index === currentIndex}
+              number={index + 1}
+              width={30}
+              height={30}
+              fontSize={12}
+            />
+          ))}
+        </div>
       </div>
     </Container>
   );

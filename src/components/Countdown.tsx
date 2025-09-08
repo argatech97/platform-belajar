@@ -3,9 +3,11 @@ import React, { useEffect, useState } from "react";
 export default function Countdown({
   initialTime,
   onEnd,
+  onChange,
 }: {
   initialTime: number;
-  onEnd: (timeLeft: number) => void;
+  onEnd: () => Promise<void>;
+  onChange?: (timeLeft: number) => void;
 }) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
 
@@ -13,15 +15,16 @@ export default function Countdown({
     const timer = setInterval(() => {
       const newValue = timeLeft - 1;
       localStorage.setItem("timeLeft", `${newValue}`);
+      // onChange(newValue);
       setTimeLeft(newValue);
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, onEnd]);
+  }, [timeLeft, onEnd, onChange]);
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      onEnd(timeLeft);
+      onEnd();
       return;
     }
   }, [onEnd, timeLeft]);

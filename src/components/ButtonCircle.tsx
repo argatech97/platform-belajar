@@ -24,6 +24,7 @@ const CircleButton: React.FC<CircleButtonProps> = React.memo(
       cursor: "pointer",
       border: "none",
       transition: "all 0.2s ease-in-out",
+      flexShrink: 0,
     };
 
     if (isActive) {

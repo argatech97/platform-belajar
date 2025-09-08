@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Container from "../../components/Container";
 import CloseNavigation from "../../components/CloseNavigation";
 import CircleWithInner from "../../components/CircleShape";
@@ -31,16 +31,31 @@ export default function Page() {
   const [percentageByDomain, setPercentageByDomain] =
     useState<{ percentage: number; totalQuestion: number; domain: string }[]>();
 
+  const [percentageByKompetensi, setPercentageByKompetensi] =
+    useState<
+      { percentage: number; totalQuestion: number; kompetensi: string; kompetensiId: string }[]
+    >();
+
   useEffect(() => {
     setTestResult(JSON.parse(localStorage.getItem("testResult") || ""));
     setPercentageByAnswerType(JSON.parse(localStorage.getItem("percentageByType") || ""));
     setPercentageBySubDomain(JSON.parse(localStorage.getItem("percentageBySubDomain") || ""));
     setPercentageByDomain(JSON.parse(localStorage.getItem("percentageByDomain") || ""));
+    setPercentageByKompetensi(JSON.parse(localStorage.getItem("percentageByKompetensi") || ""));
+  }, []);
+
+  const handleClose = useCallback(() => {
+    localStorage.removeItem("test-result");
+    localStorage.removeItem("percentageByDomain");
+    localStorage.removeItem("percentageByKompetensi");
+    localStorage.removeItem("percentageBySubDomain");
+    localStorage.removeItem("percentageByType");
+    window.close();
   }, []);
 
   return (
     <Container>
-      <CloseNavigation destinationLink={testResult?.closePath}>
+      <CloseNavigation onClick={handleClose}>
         <p style={{ color: "black" }}>
           <b>Skor : {testResult?.testName}</b>
         </p>
@@ -52,17 +67,19 @@ export default function Page() {
           alignItems: "center",
           justifyContent: "center",
           padding: "20px",
+          gap: "10px",
         }}
       >
-        <h3 style={{ marginBottom: "15px", color: "black" }}>Skor Total</h3>
-        <p style={{ marginBottom: "15px", color: "black" }}>Selamat atas pencapaianmu</p>
+        <h3 style={{ color: "black" }}>Skor Total</h3>
+        <p style={{ color: "black" }}>Selamat atas pencapaianmu</p>
         <CircleWithInner
           background={"#78CF93"}
           width={100}
           height={100}
           label={`${testResult?.score}`}
         />
-        <p style={{ margin: "15px 0px", color: "black" }}>Infografis Pencapianmu</p>
+        {/* <p>⏰ : {testResult?.testTime}</p> */}
+        <p style={{ color: "black" }}>Berikut ini Persentase Jawaban Benar Testmu</p>
         <div
           style={{
             display: "flex",
@@ -93,6 +110,22 @@ export default function Page() {
             {percentageBySubDomain?.map((item, index) => (
               <Card
                 description={item.subDomain}
+                key={index}
+                color={index % 2 === 0 ? "white" : "black"}
+                backgroundColor={index % 2 === 0 ? "#78CF93" : "white"}
+                suffix={
+                  <span style={{ color: index % 2 === 0 ? "white" : "black" }}>
+                    <b>{`${item.percentage}%`}</b>
+                  </span>
+                }
+              />
+            ))}
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <p style={{ color: "black", fontWeight: "bold" }}>Kompetensi</p>
+            {percentageByKompetensi?.map((item, index) => (
+              <Card
+                description={item.kompetensi}
                 key={index}
                 color={index % 2 === 0 ? "white" : "black"}
                 backgroundColor={index % 2 === 0 ? "#78CF93" : "white"}

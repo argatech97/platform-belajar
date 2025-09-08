@@ -11,6 +11,8 @@ export const postRequest = async (endpoint: string, data: any, headers?: any) =>
     body: JSON.stringify(data),
   });
   const json = await res.json();
-  if (!res.ok && res.status === 401) throw new Error(json.error || "Terjadi kesalahan");
+  if (!res.ok && res.status === 401) {
+    window.location.href = "/auth";
+  }
   return json;
 };

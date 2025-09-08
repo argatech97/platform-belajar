@@ -55,7 +55,7 @@ export default function Page() {
       if (name !== "Try Out") {
         router.push(`/subDomain?id=${id}&navbarTitle=${name}`);
       } else {
-        router.push("/try-out");
+        router.push("/tryout");
       }
     },
     [router, tokenIsAvailabel]

@@ -80,7 +80,7 @@ export default function Page() {
               action: () => {
                 localStorage.removeItem("timeLeft");
                 window.open(
-                  `/test?name=${el.name}&navbarTitle=${el.name}&id=${el.id}&duration=${el.durasi_seconds}&testType=Try Out&testTypeId=${testTypeId}`,
+                  `/preparation?total_question=${el.jumlah_soal}name=${el.name}&navbarTitle=${el.name}&id=${el.id}&duration=${el.durasi_seconds}&testType=Try Out&testTypeId=${testTypeId}`,
                   "_blank"
                 );
               },

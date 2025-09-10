@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import Tab from "@/components/Tab";
 import Materi from "./components/materi";
 import Quiz from "./components/quiz";
+import { count } from "console";
 
 interface MateriItem {
   id: string;
@@ -140,14 +141,13 @@ export default function Page() {
   );
 
   const onClickItemQuiz = useCallback(
-    (title: string, id: string, minute: number) => {
-      localStorage.removeItem("timeLeft");
+    (title: string, id: string, seconds: number, countQuestion: number) => {
       window.open(
-        `/test-2?name=${title}&navbarTitle=${title}&id=${id}&duration=${minute * 60}&kompetensi=${params.get("navbarTitle")}&testType=Quiz&testTypeId=${testTypeId}`,
+        `/preparation?total_question=${countQuestion}&navbarTitle=${title}&id=${id}&duration=${seconds}&testType=Quiz&testTypeId=${testTypeId}`,
         "_blank"
       );
     },
-    [params, testTypeId]
+    [testTypeId]
   );
 
   return (

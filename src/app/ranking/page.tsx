@@ -352,7 +352,7 @@ export default function Page() {
             </section>
 
             {/* full list with domain chips */}
-            <section>
+            <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {normalized.map((p, idx) => (
                 <motion.div
                   key={p.id}

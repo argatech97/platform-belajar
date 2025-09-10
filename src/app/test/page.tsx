@@ -31,6 +31,8 @@ import Coupleing from "@/components/bentukJawaban/Coupleing";
 import ShortAnswer from "@/components/bentukJawaban/ShortAnswer";
 import { mapEntitiesToQuestions } from "@/helper/mapSoalFromDB";
 import { postRequest } from "@/helper/api";
+import { useConfirmExit } from "../hooks/useConfirmExit";
+import { time } from "console";
 
 type AnswersMap = Record<string, { type: AnswerForm; value: AnswerFormValue; score: number }>;
 
@@ -119,6 +121,16 @@ export default function Page() {
 
   const [timeLeft2, setTimeLeft2] = useState(0);
 
+  useConfirmExit({
+    message: "Apakah yakin mau keluar dari halaman ini ? Semua data akan terhapus!",
+    onConfirm: () => {
+      handleClose();
+    },
+    onCancel: () => {
+      console.log("User batal keluar");
+    },
+  });
+
   useEffect(() => {
     const testId = params.get("id");
     if (!testId) return;
@@ -183,6 +195,8 @@ export default function Page() {
     const x = localStorage.getItem("timeLeft")
       ? JSON.parse(localStorage.getItem("timeLeft") || "0")
       : availableTime;
+
+    console.log(x, "x");
 
     setTimeLeft(x);
   }, [availableTime]);
@@ -684,128 +698,131 @@ export default function Page() {
   );
 
   // main submit function -------------------------------------------------
-  const submitAnswers = useCallback(async () => {
-    if (isSubmitting) return;
-    setIsSubmitting(true);
-
-    try {
-      let totalScore = 0;
-      // iterate through testData to compute per-question score
-      testData.forEach((q) => {
-        const qId = q.id;
-        const ans = answers[qId];
-        const correct =
-          (q as any).correctAnswer ?? (q as any).answer ?? (q as any).correct ?? (q as any).key;
-        if (!q.type) return;
-        switch (q.type) {
-          case "multiple-choice":
-            totalScore += scoreMultipleChoice(ans?.value, correct);
-            break;
-          case "short-answer":
-            totalScore += scoreShortAnswer(ans?.value, correct);
-            break;
-          case "multiple-select":
-            totalScore += scoreMultipleSelect((ans?.value as any[]) || [], correct || []);
-            break;
-          case "coupleing":
-            totalScore += scoreCoupleing((ans?.value as any[]) || [], correct || []);
-            break;
-          case "questioner":
-            totalScore += scoreQuestioner((ans?.value as any[]) || [], correct || []);
-            break;
-          default:
-            break;
-        }
-      });
-
-      // round to 2 decimals
-      const rounded = Math.round((totalScore + Number.EPSILON) * 100) / 100;
-
-      const testName = params.get("navbarTitle") || "Test";
-      const max = testData.length * POINT_PER_QUESTION;
-      const elapsedSeconds = (availableTime ?? 0) - (timeLeft2 ?? 0);
-      const minutes = Math.floor(elapsedSeconds / 60);
-      const seconds = elapsedSeconds % 60;
-      const formattedElapsed = `${minutes}:${seconds.toString().padStart(2, "0")}`;
-
-      const result = {
-        maximumScore: max,
-        score: rounded,
-        testName,
-        testTime: formattedElapsed,
-      };
+  const submitAnswers = useCallback(
+    async (timeLeft: number) => {
+      if (isSubmitting) return;
+      setIsSubmitting(true);
 
       try {
-        // simpan sementara di localStorage
-        localStorage.setItem("testResult", JSON.stringify(result));
-
-        // compute & simpan persentase
-        const percentageByType = computeAndSavePercentageByType(answers);
-        const percentageByDomain = computeAndSavePercentageByDomain(answers);
-        const percentageBySubDomain = computeAndSavePercentageBySubDomain(answers);
-        const percentageByKompetensi = computeAndSavePercentageByKompetensi(answers);
-        const currentUser = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
-        // 🔥 kirim ke API create hasil capaian sebelum hapus localStorage
-
-        const res = await postRequest(
-          "/test/capaian/create",
-          {
-            user_id: currentUser.id,
-            user_name: currentUser.nama_lengkap,
-            test_id: params.get("id"),
-            test_name: testName,
-            test_type_id: params.get("testTypeId") || "",
-            test_type_name: params.get("testType") || "",
-            skor: rounded,
-            time_left: timeLeft,
-            persentase_benar_by_type_answer: JSON.stringify(percentageByType),
-            persentase_benar_by_domain: JSON.stringify(percentageByDomain),
-            persentase_benar_by_sub_domain: JSON.stringify(percentageBySubDomain),
-            persentase_benar_by_kompetensi: JSON.stringify(percentageByKompetensi),
-            jawaban: answers,
-          },
-          {
-            Authorization: `Bearer ${localStorage.getItem("token-platform-belajar") || ""}`,
+        let totalScore = 0;
+        // iterate through testData to compute per-question score
+        testData.forEach((q) => {
+          const qId = q.id;
+          const ans = answers[qId];
+          const correct =
+            (q as any).correctAnswer ?? (q as any).answer ?? (q as any).correct ?? (q as any).key;
+          if (!q.type) return;
+          switch (q.type) {
+            case "multiple-choice":
+              totalScore += scoreMultipleChoice(ans?.value, correct);
+              break;
+            case "short-answer":
+              totalScore += scoreShortAnswer(ans?.value, correct);
+              break;
+            case "multiple-select":
+              totalScore += scoreMultipleSelect((ans?.value as any[]) || [], correct || []);
+              break;
+            case "coupleing":
+              totalScore += scoreCoupleing((ans?.value as any[]) || [], correct || []);
+              break;
+            case "questioner":
+              totalScore += scoreQuestioner((ans?.value as any[]) || [], correct || []);
+              break;
+            default:
+              break;
           }
-        );
+        });
 
-        if (!res.ok && res.status === 401) {
-          router.replace("/auth");
-          return;
+        // round to 2 decimals
+        const rounded = Math.round((totalScore + Number.EPSILON) * 100) / 100;
+
+        const testName = params.get("navbarTitle") || "Test";
+        const max = testData.length * POINT_PER_QUESTION;
+        const elapsedSeconds = (availableTime ?? 0) - (timeLeft ?? 0);
+        const minutes = Math.floor(elapsedSeconds / 60);
+        const seconds = elapsedSeconds % 60;
+        const formattedElapsed = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+
+        const result = {
+          maximumScore: max,
+          score: rounded,
+          testName,
+          testTime: formattedElapsed,
+        };
+
+        try {
+          // simpan sementara di localStorage
+          localStorage.setItem("testResult", JSON.stringify(result));
+
+          // compute & simpan persentase
+          const percentageByType = computeAndSavePercentageByType(answers);
+          const percentageByDomain = computeAndSavePercentageByDomain(answers);
+          const percentageBySubDomain = computeAndSavePercentageBySubDomain(answers);
+          const percentageByKompetensi = computeAndSavePercentageByKompetensi(answers);
+          const currentUser = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
+          // 🔥 kirim ke API create hasil capaian sebelum hapus localStorage
+          console.log("siap kirim capaian ke server");
+          const res = await postRequest(
+            "/test/capaian/create",
+            {
+              user_id: currentUser.id,
+              user_name: currentUser.nama_lengkap,
+              test_id: params.get("id"),
+              test_name: testName,
+              test_type_id: params.get("testTypeId") || "",
+              test_type_name: params.get("testType") || "",
+              skor: rounded,
+              time_left: timeLeft,
+              persentase_benar_by_type_answer: JSON.stringify(percentageByType),
+              persentase_benar_by_domain: JSON.stringify(percentageByDomain),
+              persentase_benar_by_sub_domain: JSON.stringify(percentageBySubDomain),
+              persentase_benar_by_kompetensi: JSON.stringify(percentageByKompetensi),
+              jawaban: answers,
+            },
+            {
+              Authorization: `Bearer ${localStorage.getItem("token-platform-belajar") || ""}`,
+            }
+          );
+
+          if (!res.ok && res.status === 401) {
+            router.replace("/auth");
+            return;
+          }
+
+          // baru hapus storage
+          localStorage.removeItem("soal-aktif-platform-belajar");
+          localStorage.removeItem("content-aktif-platform-belajar");
+          localStorage.removeItem("timeLeft");
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (e) {
+          console.error("Error saving results:", e);
         }
 
-        // baru hapus storage
-        localStorage.removeItem("soal-aktif-platform-belajar");
-        localStorage.removeItem("content-aktif-platform-belajar");
-        localStorage.removeItem("timeLeft");
-        localStorage.removeItem(STORAGE_KEY);
-      } catch (e) {
-        console.error("Error saving results:", e);
-      }
+        // navigate to score page
+        console.log("mengarah ke halaman skor");
 
-      // navigate to score page
-      router.push(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [
-    answers,
-    availableTime,
-    computeAndSavePercentageByDomain,
-    computeAndSavePercentageBySubDomain,
-    computeAndSavePercentageByType,
-    computeAndSavePercentageByKompetensi,
-    isSubmitting,
-    params,
-    router,
-    scoreCoupleing,
-    scoreMultipleChoice,
-    scoreMultipleSelect,
-    scoreQuestioner,
-    scoreShortAnswer,
-    availableTime,
-    timeLeft2,
-  ]);
+        router.push(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [
+      answers,
+      availableTime,
+      computeAndSavePercentageByDomain,
+      computeAndSavePercentageBySubDomain,
+      computeAndSavePercentageByType,
+      computeAndSavePercentageByKompetensi,
+      isSubmitting,
+      params,
+      router,
+      scoreCoupleing,
+      scoreMultipleChoice,
+      scoreMultipleSelect,
+      scoreQuestioner,
+      scoreShortAnswer,
+    ]
+  );
 
   const handleClose = useCallback(() => {
     localStorage.removeItem("soal-aktif-platform-belajar");
@@ -844,10 +861,23 @@ export default function Page() {
               <b>{params.get("navbarTitle") || ""}</b>
             </p>
             {/* pass submit handler to Countdown as onEnd/onComplete if supported */}
-            {timeLeft && <Countdown initialTime={timeLeft} onEnd={submitAnswers} />}
+            {timeLeft && (
+              <Countdown
+                initialTime={timeLeft}
+                onEnd={async (x: number) => {
+                  submitAnswers(x);
+                }}
+              />
+            )}
             {timeLeft && (
               <button
-                onClick={() => submitAnswers()}
+                onClick={() =>
+                  submitAnswers(
+                    localStorage.getItem("timeLeft")
+                      ? JSON.parse(localStorage.getItem("timeLeft") || "0")
+                      : timeLeft
+                  )
+                }
                 disabled={isSubmitting}
                 style={{
                   padding: "10px",

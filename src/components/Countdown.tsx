@@ -6,17 +6,21 @@ export default function Countdown({
   onChange,
 }: {
   initialTime: number;
-  onEnd: () => Promise<void>;
+  onEnd: (timeLeft: number) => Promise<void>;
   onChange?: (timeLeft: number) => void;
 }) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      const newValue = timeLeft - 1;
-      localStorage.setItem("timeLeft", `${newValue}`);
-      // onChange(newValue);
-      setTimeLeft(newValue);
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        return;
+      } else {
+        const newValue = timeLeft - 1;
+        localStorage.setItem("timeLeft", `${newValue}`);
+        setTimeLeft(newValue);
+      }
     }, 1000);
 
     return () => clearInterval(timer);
@@ -24,10 +28,11 @@ export default function Countdown({
 
   useEffect(() => {
     if (timeLeft <= 0) {
-      onEnd();
+      console.log("Countdown ended, calling onEnd");
+      onEnd(timeLeft);
       return;
     }
-  }, [onEnd, timeLeft]);
+  }, [timeLeft]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

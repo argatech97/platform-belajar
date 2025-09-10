@@ -31,7 +31,7 @@ export type MultipleSelectValue = abcd[];
 
 export type CoupleingValue = { sourceId: string; targetId: string }[];
 
-export type ShortAnswerValue = (string | number)[];
+export type ShortAnswerValue = string | number;
 
 export type QuestionerValue = { sourceId: string; targetId: string }[];
 

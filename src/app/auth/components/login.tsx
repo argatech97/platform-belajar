@@ -13,6 +13,7 @@ export const LoginForm = memo(function LoginForm({
   password,
   setPassword,
   onLoginSuccess,
+  onSetLoading,
 }: any) {
   const { primary } = data();
   const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
@@ -35,20 +36,21 @@ export const LoginForm = memo(function LoginForm({
       }
 
       try {
+        onSetLoading(true);
         const res = await postRequest("/auth/login", {
           role,
           no_identitas: identity,
           password,
         });
+        onSetLoading(false);
         localStorage.setItem("token-platform-belajar", res.token);
         localStorage.setItem("user-platform-belajar", JSON.stringify(res.user));
-        alert("Login berhasil");
         onLoginSuccess(res.user);
       } catch (err: any) {
         alert(err.message);
       }
     },
-    [role, identity, password, onLoginSuccess]
+    [role, identity, password, onSetLoading, onLoginSuccess]
   );
 
   useEffect(() => {

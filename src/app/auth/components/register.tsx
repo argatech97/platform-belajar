@@ -19,6 +19,7 @@ export const RegisterForm = memo(function RegisterForm({
   password,
   setPassword,
   setModeLogin,
+  onSetLoading,
 }: any) {
   const [roleOptions, setRoleOptions] = useState<RoleOption[]>([]);
   const [sekolahOptions, setSekolahOptions] = useState<SekolahOption[]>([]);

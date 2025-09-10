@@ -143,7 +143,7 @@ export default function Page() {
     (title: string, id: string, minute: number) => {
       localStorage.removeItem("timeLeft");
       window.open(
-        `/subDomain/kompetensi/pembelajaran/quiz?name=${title}&navbarTitle=${title}&id=${id}&duration=${minute * 60}&kompetensi=${params.get("navbarTitle")}&testType=Quiz&testTypeId=${testTypeId}`,
+        `/test-2?name=${title}&navbarTitle=${title}&id=${id}&duration=${minute * 60}&kompetensi=${params.get("navbarTitle")}&testType=Quiz&testTypeId=${testTypeId}`,
         "_blank"
       );
     },

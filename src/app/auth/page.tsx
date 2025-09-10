@@ -5,6 +5,7 @@ import { data, Role } from "./data";
 import { LoginForm } from "./components/login";
 import { RegisterForm } from "./components/register";
 import { useRouter } from "next/navigation";
+import Loading from "@/components/Loading";
 
 export default function Page() {
   const [mode, setMode] = useState<"login" | "register">("login");
@@ -16,6 +17,7 @@ export default function Page() {
   const [kelas, setKelas] = useState<number | "">("");
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -35,7 +37,9 @@ export default function Page() {
     [router]
   );
 
-  return (
+  return loading ? (
+    <Loading></Loading>
+  ) : (
     <div
       style={{
         backgroundColor: secondary,
@@ -119,6 +123,7 @@ export default function Page() {
               password={password}
               setPassword={setPassword}
               onLoginSuccess={handleLoginSuccess}
+              onSetLoading={setLoading}
             />
           ) : (
             <RegisterForm

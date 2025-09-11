@@ -9,7 +9,7 @@ export default function PreparationPage() {
   const searchParams = useSearchParams();
 
   // Ambil query params
-  const testName = searchParams.get("navbarTitle") || "SIMULASI TEST";
+  const testName = searchParams.get("navbarTitle") || "📚 SIMULASI TEST";
   const totalQuestions = searchParams.get("total_question") || "0";
   const durationSeconds = searchParams.get("duration") || "0";
   const testType = searchParams.get("testType") || "";
@@ -55,33 +55,50 @@ export default function PreparationPage() {
         fontFamily: "Arial, sans-serif",
       }}
     >
-      <h1 style={{ fontSize: "2.5rem", fontWeight: "bold", marginBottom: "20px" }}>{testName}</h1>
-      <p style={{ fontSize: "1.2rem", marginBottom: "10px" }}>
-        Jumlah Soal: <b>{totalQuestions}</b>
+      <h1
+        style={{
+          fontSize: "2.8rem",
+          fontWeight: "bold",
+          marginBottom: "25px",
+          textShadow: "2px 2px 10px rgba(0,0,0,0.4)",
+        }}
+      >
+        🚀 {testName}
+      </h1>
+
+      <p style={{ fontSize: "1.4rem", marginBottom: "12px" }}>
+        📝 Jumlah Soal: <b>{totalQuestions}</b>
       </p>
-      <p style={{ fontSize: "1.2rem", marginBottom: "40px" }}>
-        Durasi: <b>{durationSeconds} menit</b>
+
+      <p style={{ fontSize: "1.4rem", marginBottom: "50px" }}>
+        ⏳ Durasi: <b>{durationSeconds} menit</b>
       </p>
 
       <button
         onClick={handleStart}
         style={{
-          padding: "15px 40px",
-          fontSize: "1.2rem",
+          padding: "18px 45px",
+          fontSize: "1.3rem",
           fontWeight: "bold",
-          borderRadius: "30px",
+          borderRadius: "35px",
           border: "none",
           background: "linear-gradient(90deg, #ff512f, #dd2476, #24c6dc, #514a9d)",
           backgroundSize: "300% 300%",
           color: "#fff",
           cursor: "pointer",
-          boxShadow: "0px 5px 20px rgba(0,0,0,0.3)",
-          transition: "transform 0.3s ease",
+          boxShadow: "0px 8px 25px rgba(0,0,0,0.3)",
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
         }}
-        onMouseEnter={(e) => ((e.target as HTMLButtonElement).style.transform = "scale(1.05)")}
-        onMouseLeave={(e) => ((e.target as HTMLButtonElement).style.transform = "scale(1)")}
+        onMouseEnter={(e) => {
+          (e.target as HTMLButtonElement).style.transform = "scale(1.08)";
+          (e.target as HTMLButtonElement).style.boxShadow = "0px 12px 35px rgba(0,0,0,0.4)";
+        }}
+        onMouseLeave={(e) => {
+          (e.target as HTMLButtonElement).style.transform = "scale(1)";
+          (e.target as HTMLButtonElement).style.boxShadow = "0px 8px 25px rgba(0,0,0,0.3)";
+        }}
       >
-        🚀 Mulai Test
+        🎯 Mulai Test Sekarang!
       </button>
 
       {/* Inline style untuk animasi gradient */}

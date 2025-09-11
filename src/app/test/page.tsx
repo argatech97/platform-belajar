@@ -33,6 +33,7 @@ import { mapEntitiesToQuestions } from "@/helper/mapSoalFromDB";
 import { postRequest } from "@/helper/api";
 import { useConfirmExit } from "../hooks/useConfirmExit";
 import { time } from "console";
+import { useSecurePage } from "../hooks/useSecurePage";
 
 type AnswersMap = Record<string, { type: AnswerForm; value: AnswerFormValue; score: number }>;
 
@@ -78,6 +79,7 @@ const LABEL_BY_TYPE: Record<string, string> = {
   coupleing: "Mencocokkan (Coupleing)",
 };
 export default function Page() {
+  useSecurePage({ blockCopy: true, blockScreenshot: true });
   const params = useSearchParams();
   const router = useRouter();
 
@@ -840,7 +842,15 @@ export default function Page() {
   // render
   return (
     <Container>
-      <div style={{ display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          userSelect: "none",
+          WebkitUserSelect: "none",
+          msUserSelect: "none",
+        }}
+      >
         <CloseNavigation onClick={handleClose}>
           <div
             style={{

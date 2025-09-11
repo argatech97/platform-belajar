@@ -10,9 +10,17 @@ export const postRequest = async (endpoint: string, data: any, headers?: any) =>
     },
     body: JSON.stringify(data),
   });
-  const json = await res.json();
-  if (!res.ok && res.status === 401) {
-    window.location.href = "/auth";
+
+  const json = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    console.log(json);
+    if (res.status === 401) {
+      // kalau login gagal / token invalid, lempar error
+      throw new Error(json.error || "Username atau password salah!");
+    }
+    throw new Error(json.error || "Request gagal!");
   }
+
   return json;
 };

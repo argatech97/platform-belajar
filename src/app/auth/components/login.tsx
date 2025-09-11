@@ -29,7 +29,6 @@ export const LoginForm = memo(function LoginForm({
     async (e: React.FormEvent) => {
       e.preventDefault();
 
-      // validasi field wajib
       if (!role || !identity || !password) {
         alert("Semua field wajib diisi!");
         return;
@@ -43,11 +42,13 @@ export const LoginForm = memo(function LoginForm({
           password,
         });
         onSetLoading(false);
+
         localStorage.setItem("token-platform-belajar", res.token);
         localStorage.setItem("user-platform-belajar", JSON.stringify(res.user));
         onLoginSuccess(res.user);
       } catch (err: any) {
-        alert(err.message);
+        onSetLoading(false);
+        alert(err.message || "Terjadi kesalahan saat login!");
       }
     },
     [role, identity, password, onSetLoading, onLoginSuccess]

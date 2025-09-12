@@ -34,6 +34,8 @@ import { postRequest } from "@/helper/api";
 import { useConfirmExit } from "../hooks/useConfirmExit";
 import { time } from "console";
 import { useSecurePage } from "../hooks/useSecurePage";
+import ConfirmationButton from "../components/ConfirmationButton";
+import Loading from "@/components/Loading";
 
 type AnswersMap = Record<string, { type: AnswerForm; value: AnswerFormValue; score: number }>;
 
@@ -100,13 +102,12 @@ export default function Page() {
     target: IOption<string>[];
   } | null>(null);
   const [typeOfAnswer, setTypeOfAnswer] = useState<"number" | "text">("text");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   // derived: active item and content
   const activeItem = useMemo(() => testData[currentIndex || 0], [currentIndex, testData]);
   const contentActive = useMemo(() => {
     if (!activeItem) return "";
-    console.log(content, activeItem, "taik 2");
     return content.find((c) => c.id === activeItem.contentId)?.value || "";
   }, [activeItem, content]);
 
@@ -120,8 +121,6 @@ export default function Page() {
   const STORAGE_KEY = params.get("name") || "test";
 
   const [timeLeft, setTimeLeft] = useState<number>();
-
-  const [timeLeft2, setTimeLeft2] = useState(0);
 
   useConfirmExit({
     message: "Apakah yakin mau keluar dari halaman ini ? Semua data akan terhapus!",
@@ -147,46 +146,59 @@ export default function Page() {
       setCurrentIndex(0);
       return;
     }
+
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const token = localStorage.getItem("token-platform-belajar");
-
-        // fetch soal test
-        const resTest = await fetch(`/api/question/${testId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (resTest.ok) {
-          const data = await resTest.json();
-          const mappingData = await mapEntitiesToQuestions(data.data);
-          setTestData(mappingData);
-          localStorage.setItem("soal-aktif-platform-belajar", JSON.stringify(mappingData));
-          console.log("jiaah");
-          setCurrentIndex(0);
-        } else if (!resTest.ok && resTest.status === 401) {
+        if (!token) {
           router.replace("/auth");
           return;
         }
 
-        // fetch konten test
+        // --- Fetch soal test ---
+        const resTest = await fetch(`/api/question/${testId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
+        if (resTest.status === 401) {
+          router.replace("/auth");
+          return;
+        }
+
+        if (resTest.ok) {
+          const { data } = await resTest.json();
+          const mappingData = await mapEntitiesToQuestions(data);
+          setTestData(mappingData);
+
+          localStorage.setItem("soal-aktif-platform-belajar", JSON.stringify(mappingData));
+          setCurrentIndex(0);
+        }
+
+        // --- Fetch konten test ---
         const resContent = await fetch(`/api/content/${testId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
+
+        if (resContent.status === 401) {
+          router.replace("/auth");
+          return;
+        }
+
         if (resContent.ok) {
-          const data = await resContent.json();
-          const contentDatas = data.data.map((el: { id: string; data: string }) => ({
+          const { data } = await resContent.json();
+          const contentDatas = data.map((el: { id: string; data: string }) => ({
             id: el.id,
             value: el.data,
           }));
 
           setContent(contentDatas);
           localStorage.setItem("content-aktif-platform-belajar", JSON.stringify(contentDatas));
-        } else if (!resTest.ok && resTest.status === 401) {
-          router.replace("/auth");
-          return;
         }
       } catch (err) {
         console.error("Failed to fetch test/content", err);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -197,8 +209,6 @@ export default function Page() {
     const x = localStorage.getItem("timeLeft")
       ? JSON.parse(localStorage.getItem("timeLeft") || "0")
       : availableTime;
-
-    console.log(x, "x");
 
     setTimeLeft(x);
   }, [availableTime]);
@@ -292,7 +302,6 @@ export default function Page() {
       currentIndex !== undefined && currentIndex < testData.length - 1
         ? currentIndex + 1
         : currentIndex;
-    console.log(newvalue);
     setCurrentIndex(newvalue);
   }, [testData, currentIndex]);
 
@@ -702,8 +711,8 @@ export default function Page() {
   // main submit function -------------------------------------------------
   const submitAnswers = useCallback(
     async (timeLeft: number) => {
-      if (isSubmitting) return;
-      setIsSubmitting(true);
+      if (isLoading) return;
+      setIsLoading(true);
 
       try {
         let totalScore = 0;
@@ -743,7 +752,7 @@ export default function Page() {
         const elapsedSeconds = (availableTime ?? 0) - (timeLeft ?? 0);
         const minutes = Math.floor(elapsedSeconds / 60);
         const seconds = elapsedSeconds % 60;
-        const formattedElapsed = `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        const formattedElapsed = `${minutes} Menit ${seconds.toString().padStart(2, "0")} Detik`;
 
         const result = {
           maximumScore: max,
@@ -763,7 +772,6 @@ export default function Page() {
           const percentageByKompetensi = computeAndSavePercentageByKompetensi(answers);
           const currentUser = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
           // 🔥 kirim ke API create hasil capaian sebelum hapus localStorage
-          console.log("siap kirim capaian ke server");
           const res = await postRequest(
             "/test/capaian/create",
             {
@@ -774,7 +782,7 @@ export default function Page() {
               test_type_id: params.get("testTypeId") || "",
               test_type_name: params.get("testType") || "",
               skor: rounded,
-              time_left: timeLeft,
+              time_spent: elapsedSeconds,
               persentase_benar_by_type_answer: JSON.stringify(percentageByType),
               persentase_benar_by_domain: JSON.stringify(percentageByDomain),
               persentase_benar_by_sub_domain: JSON.stringify(percentageBySubDomain),
@@ -796,16 +804,15 @@ export default function Page() {
           localStorage.removeItem("content-aktif-platform-belajar");
           localStorage.removeItem("timeLeft");
           localStorage.removeItem(STORAGE_KEY);
+          router.push(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
         } catch (e) {
           console.error("Error saving results:", e);
+          alert(e);
         }
 
         // navigate to score page
-        console.log("mengarah ke halaman skor");
-
-        router.push(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
       } finally {
-        setIsSubmitting(false);
+        setIsLoading(false);
       }
     },
     [
@@ -815,7 +822,7 @@ export default function Page() {
       computeAndSavePercentageBySubDomain,
       computeAndSavePercentageByType,
       computeAndSavePercentageByKompetensi,
-      isSubmitting,
+      isLoading,
       params,
       router,
       scoreCoupleing,
@@ -840,7 +847,9 @@ export default function Page() {
   }, []);
 
   // render
-  return (
+  return isLoading ? (
+    <Loading></Loading>
+  ) : (
     <Container>
       <div
         style={{
@@ -880,25 +889,17 @@ export default function Page() {
               />
             )}
             {timeLeft && (
-              <button
-                onClick={() =>
-                  submitAnswers(
+              <ConfirmationButton
+                confirmMessage="Apakah kamu yakin ingin mengakhiri tes ini ? Karena data yang sudah diisi akan terhapus"
+                onConfirm={function (): Promise<void> {
+                  return submitAnswers(
                     localStorage.getItem("timeLeft")
                       ? JSON.parse(localStorage.getItem("timeLeft") || "0")
                       : timeLeft
-                  )
-                }
-                disabled={isSubmitting}
-                style={{
-                  padding: "10px",
-                  borderRadius: "5px",
-                  border: "none",
-                  color: "white",
-                  background: "#69CA87",
+                  );
                 }}
-              >
-                {isSubmitting ? "Mengirim..." : "Akhiri!"}
-              </button>
+                label={"Akhiri!"}
+              />
             )}
           </div>
         </CloseNavigation>
@@ -906,7 +907,6 @@ export default function Page() {
           No Soal : {currentIndex !== undefined ? currentIndex + 1 : ""}
         </div>
       </div>
-
       <div style={{ height: "100%", overflow: "auto", padding: "10px 15px" }}>
         {contentActive && (
           <div

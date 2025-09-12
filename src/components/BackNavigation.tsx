@@ -27,6 +27,9 @@ export default function BackNavigation({
         borderBottom: !disableBorder ? "0.5px solid #c6c6c6" : "none",
         padding: "15px",
         cursor: "pointer",
+        position: "sticky",
+        top: 0,
+        zIndex: 100,
       }}
       onClick={() => router.back()}
     >

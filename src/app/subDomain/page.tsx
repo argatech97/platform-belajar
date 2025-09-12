@@ -49,7 +49,7 @@ export default function Page() {
     } catch (err) {
       console.error(err);
     }
-  }, [domainId]);
+  }, [domainId, router]);
 
   useEffect(() => {
     if (!domainId) return;

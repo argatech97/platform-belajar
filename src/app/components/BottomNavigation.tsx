@@ -32,7 +32,7 @@ export default function BottomNavigation() {
       </svg>
       <svg
         onClick={() => {
-          router.push("/capaian?navbarTitle=Peserta Didik");
+          router.push("/capaian?navbarTitle=Capain");
         }}
         width="20"
         height="20"

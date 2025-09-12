@@ -23,7 +23,7 @@ export default function Tab({ primaryColor, tabList, tabOnChange, initialActiveT
   );
 
   return (
-    <div style={{ display: "flex", flexWrap: "nowrap", overflow: "auto" }}>
+    <div style={{ display: "flex", flexWrap: "nowrap", marginBottom: "10px" }}>
       {tabList.map((tab, index) => (
         <div
           onClick={() => tabOnClick(tab.value)}

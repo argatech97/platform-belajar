@@ -142,6 +142,8 @@ export default function Page() {
 
   const onClickItemQuiz = useCallback(
     (title: string, id: string, seconds: number, countQuestion: number) => {
+      localStorage.removeItem("timeLeft");
+      localStorage.removeItem("testResult");
       window.open(
         `/preparation?total_question=${countQuestion}&navbarTitle=${title}&id=${id}&duration=${seconds}&testType=Quiz&testTypeId=${testTypeId}`,
         "_blank"

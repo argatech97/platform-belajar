@@ -14,7 +14,6 @@ export const postRequest = async (endpoint: string, data: any, headers?: any) =>
   const json = await res.json().catch(() => ({}));
 
   if (!res.ok) {
-    console.log(json);
     if (res.status === 401) {
       // kalau login gagal / token invalid, lempar error
       throw new Error(json.error || "Username atau password salah!");

@@ -30,7 +30,7 @@ export default function PreparationPage() {
     } catch (err) {
       console.error("Fullscreen gagal:", err);
     }
-
+    localStorage.removeItem("timeLeft");
     router.push(
       `/test?name=${testName}&navbarTitle=${testName}&id=${id}&duration=${Number(
         durationSeconds
@@ -71,7 +71,7 @@ export default function PreparationPage() {
       </p>
 
       <p style={{ fontSize: "1.4rem", marginBottom: "50px" }}>
-        ⏳ Durasi: <b>{durationSeconds} menit</b>
+        ⏳ Durasi: <b>{Number(durationSeconds) / 60} menit</b>
       </p>
 
       <button

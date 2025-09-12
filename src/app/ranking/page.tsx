@@ -3,10 +3,13 @@
 
 import Container from "@/components/Container";
 import Loading from "@/components/Loading";
-import { useSearchParams } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Share2 } from "lucide-react";
+import CloseNavigation from "@/components/CloseNavigation";
+import CapaianCardList from "../components/CapaianCardList";
+import { IHasilCapaian } from "../types/hasilCapain";
 
 /** --- types sesuai yang kamu kirim --- */
 export interface PersentaseBenarByDomain {
@@ -17,30 +20,12 @@ export interface PersentaseBenarByDomain {
   correctQuestions: number;
 }
 
-export interface Root {
-  id: string;
-  test_id: string;
-  test_name: string;
-  test_type_id: string;
-  test_type_name: string;
-  skor: string; // API memberikan string
-  time_left: string;
-  persentase_benar_by_domain: PersentaseBenarByDomain[];
-  persentase_benar_by_sub_domain: any[];
-  persentase_benar_by_type_answer: any[];
-  persentase_benar_by_kompetensi: any[];
-  jawaban: any;
-  user_id: string;
-  user_name: string;
-}
-/** ----------------------------------- */
-
 export default function Page() {
   const params = useSearchParams();
   const id = params.get("id");
   const name = params.get("title") || "Try Out";
 
-  const [participants, setParticipants] = useState<Root[]>([]);
+  const [participants, setParticipants] = useState<IHasilCapaian[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -54,7 +39,7 @@ export default function Page() {
 
         // expecting json: Root[]
         if (Array.isArray(json)) {
-          setParticipants(json as Root[]);
+          setParticipants(json as IHasilCapaian[]);
         } else {
           console.warn("Response bukan array Root[]:", json);
           // jika API bungkus di properti lain, coba fallback
@@ -78,16 +63,10 @@ export default function Page() {
   }, [participants]);
 
   const maxScore = useMemo(() => {
-    return normalized.length ? Math.max(...normalized.map((p) => p._skor || 0)) : 100;
+    return normalized.length
+      ? Math.max(...normalized.map((p) => p._skor || 0))
+      : normalized.length * 5;
   }, [normalized]);
-
-  const initials = (n = "") =>
-    String(n)
-      .split(" ")
-      .map((s) => s[0] ?? "")
-      .slice(0, 2)
-      .join("")
-      .toUpperCase();
 
   const handleShare = async () => {
     try {
@@ -109,7 +88,6 @@ export default function Page() {
   // inline styles (Record supaya fungsi style bisa dipakai)
   const styles: Record<string, any> = {
     page: {
-      minHeight: "72vh",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -152,6 +130,7 @@ export default function Page() {
       borderRadius: 12,
       background: "#fff",
       boxShadow: "0 8px 18px rgba(0,0,0,0.06)",
+      cursor: "pointer",
     },
     avatar: (bg: string) => ({
       width: 48,
@@ -215,58 +194,33 @@ export default function Page() {
     "linear-gradient(135deg,#f97316,#f43f5e)",
   ];
 
-  const renderParticipantDomains = (p: Root, offset = 0) => {
-    if (!Array.isArray(p.persentase_benar_by_domain) || p.persentase_benar_by_domain.length === 0)
-      return null;
-    return (
-      <div style={styles.domainWrap}>
-        {p.persentase_benar_by_domain.map((d, i) => {
-          const pct = Math.round(d.percentage * 10) / 10;
-          const width = Math.max(6, d.percentage);
-          return (
-            <div key={d.domainId} style={styles.domainChip(palette[(offset + i) % palette.length])}>
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  gap: 8,
-                }}
-              >
-                <div style={styles.domainLabel}>{d.domain}</div>
-                <div style={styles.domainPct}>{pct}%</div>
-              </div>
-              <div
-                style={{
-                  height: 6,
-                  width: "100%",
-                  borderRadius: 9999,
-                  background: "rgba(255,255,255,0.2)",
-                  overflow: "hidden",
-                  marginTop: 6,
-                }}
-              >
-                <div
-                  style={{
-                    height: "100%",
-                    width: `${width}%`,
-                    borderRadius: 9999,
-                    background: "rgba(255,255,255,0.95)",
-                  }}
-                />
-              </div>
-              <div style={{ fontSize: 11, marginTop: 6, opacity: 0.95 }}>
-                {d.correctQuestions}/{d.totalQuestions} benar
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  const router = useRouter();
+
+  const handleClose = useCallback((noClose?: boolean) => {
+    try {
+      localStorage.removeItem("testResult");
+      localStorage.removeItem("percentageByDomain");
+      localStorage.removeItem("percentageByKompetensi");
+      localStorage.removeItem("percentageBySubDomain");
+      localStorage.removeItem("percentageByType");
+    } catch (e) {
+      console.log(e);
+      // ignore
+    }
+    if (!noClose) {
+      window.close();
+    }
+  }, []);
 
   return (
     <Container>
+      <CloseNavigation onClick={() => handleClose()}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div>
+            📊 <b>Ranking</b>
+          </div>
+        </div>
+      </CloseNavigation>
       <div style={styles.page}>
         <div style={styles.headerBox}>
           <div
@@ -352,65 +306,45 @@ export default function Page() {
             </section>
 
             {/* full list with domain chips */}
-            <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {normalized.map((p, idx) => (
-                <motion.div
-                  key={p.id}
-                  initial={{ x: -8, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  transition={{ delay: 0.02 * idx }}
-                  style={styles.row}
-                >
-                  <div style={styles.avatar(palette[idx % palette.length])}>
-                    {initials(p.user_name)}
-                  </div>
-
-                  <div style={styles.nameBlock}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div style={{ fontWeight: 800 }}>{p.user_name} </div>
-                      <div style={styles.score}>{p._skor}</div>
-                    </div>
-
-                    <div style={styles.progressBarBg}>
-                      <div
-                        style={styles.progressFill(
-                          Math.max(6, (p._skor / maxScore) * 100),
-                          idx < 3
-                        )}
-                      />
-                    </div>
-
-                    {/* tambahan: rank + % of top + badge */}
-                    <div
-                      style={{
-                        marginTop: 8,
-                        color: "#6b7280",
-                        fontSize: 12,
-                        display: "flex",
-                        gap: 8,
-                      }}
-                    >
-                      <span>Rank #{idx + 1}</span>
-                      <span>•</span>
-                      <span>{Math.round((p._skor / maxScore) * 100)}% of top</span>
-                      <span>•</span>
-                      <span>{idx < 3 ? "🔥 Top Performer" : "⭐ Participant"}</span>
-                    </div>
-
-                    {/* per-participant domains */}
-                    {renderParticipantDomains(p, idx)}
-                  </div>
-                </motion.div>
-              ))}
-            </section>
+            <CapaianCardList
+              index="user_name"
+              data={normalized}
+              maxScore={maxScore}
+              palette={palette}
+              onclick={(data: IHasilCapaian) => {
+                router.push(
+                  "/skor?id=" +
+                    data.id +
+                    "&name=" +
+                    data.test_name +
+                    "&capaian_id=" +
+                    data.id +
+                    "&user_name=" +
+                    data.user_name
+                );
+              }}
+            />
           </main>
         )}
+      </div>
+      <div
+        onClick={() => {
+          router.push("/");
+        }}
+        style={{
+          position: "sticky",
+          bottom: 0,
+          left: 0,
+          padding: "15px",
+          background: "linear-gradient(90deg, #27c9b9ff 0%, #c35ed3ff 100%)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          color: "#fff",
+          fontWeight: 700,
+        }}
+      >
+        Kembali ke Home
       </div>
     </Container>
   );

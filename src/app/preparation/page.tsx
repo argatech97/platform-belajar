@@ -31,6 +31,9 @@ export default function PreparationPage() {
       console.error("Fullscreen gagal:", err);
     }
     localStorage.removeItem("timeLeft");
+    localStorage.removeItem("soal-aktif-platform-belajar");
+    localStorage.removeItem("content-aktif-platform-belajar");
+
     router.push(
       `/test?name=${testName}&navbarTitle=${testName}&id=${id}&duration=${Number(
         durationSeconds

@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Card from "../Card";
-import { abcd, IOptionWith4type } from "@/app/types/answerForm";
+import { abcd, IOptionWith4type, MultipleSelectValue } from "@/app/types/answerForm";
 
 export default function MultipleSelect({
   onClick,
   options,
   selectedOptions,
+  isPembahasan,
+  kunciJawaban,
 }: {
+  kunciJawaban: MultipleSelectValue;
+  isPembahasan?: boolean;
   options: IOptionWith4type[];
   selectedOptions?: abcd[];
   onClick: (value: abcd[]) => void;
@@ -21,14 +25,29 @@ export default function MultipleSelect({
     }
   }, [selectedOptions]);
 
+  const renderKunciJawaban = useMemo(() => {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {options
+          .filter((el) => kunciJawaban.includes(el.value))
+          .map((el, index) => (
+            <div key={index}>
+              {el.value}. {el.content}
+            </div>
+          ))}
+      </div>
+    );
+  }, [kunciJawaban, options]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
       <p style={{ color: "black" }}>
-        <b>Pilih beberapa jawaban di bawah ini !</b>
+        <b>{isPembahasan ? "Jawaban Anda :" : "Pilih beberapa jawaban di bawah ini !"}</b>
       </p>
       {options.map((item, index) => (
         <Card
           onClick={() => {
+            if (isPembahasan) return;
             const x = jawabanTerpilih.includes(item.value);
             if (x) {
               const newCValue = jawabanTerpilih.filter((val) => val !== item.value);
@@ -45,6 +64,21 @@ export default function MultipleSelect({
           description={`${item.content}`}
         />
       ))}
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        <p>
+          <b>Kunci Jawaban</b>
+        </p>
+        {renderKunciJawaban}
+      </div>
     </div>
   );
 }

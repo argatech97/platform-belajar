@@ -314,7 +314,7 @@ export default function Page() {
               onclick={(data: IHasilCapaian) => {
                 router.push(
                   "/skor?id=" +
-                    data.id +
+                    data.test_id +
                     "&name=" +
                     data.test_name +
                     "&capaian_id=" +

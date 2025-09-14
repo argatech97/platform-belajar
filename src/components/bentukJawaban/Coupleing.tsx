@@ -7,7 +7,11 @@ export default function Coupleing({
   target,
   originalValue,
   onSelectCouple,
+  isPembahasan,
+  kunciJawaban,
 }: {
+  kunciJawaban: CoupleingValue;
+  isPembahasan?: boolean;
   source: IOption<string>[];
   target: IOption<string>[];
   originalValue: CoupleingValue;
@@ -66,6 +70,7 @@ export default function Coupleing({
           key={index}
           description={el.content}
           onClick={() => {
+            if (isPembahasan) return;
             setSelectedSource(el.value);
           }}
           color={x ? "white" : "black"}
@@ -74,7 +79,7 @@ export default function Coupleing({
         ></Card>
       );
     });
-  }, [findBgColor, source, selectedSource]);
+  }, [source, findBgColor, selectedSource, isPembahasan]);
 
   const targetCard = useCallback(() => {
     return target.map((el, index) => {
@@ -84,6 +89,7 @@ export default function Coupleing({
           key={index}
           description={el.content}
           onClick={() => {
+            if (isPembahasan) return;
             setSelectedTarget(el.value);
           }}
           color={x ? "white" : "black"}
@@ -91,13 +97,40 @@ export default function Coupleing({
         ></Card>
       );
     });
-  }, [findBgColor, target]);
+  }, [findBgColor, isPembahasan, target]);
+
+  const mapJawabanBenar = useCallback(() => {
+    return kunciJawaban.map((jb) => {
+      const sourceItem = source.find((s) => s.value === jb.sourceId) || null;
+      const optionItem = target.find((o) => o.value === jb.targetId) || null;
+
+      return {
+        source: sourceItem,
+        target: optionItem,
+      };
+    });
+  }, [kunciJawaban, source, target]);
+
+  const renderKunciJawaban = useMemo(
+    () => (
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {mapJawabanBenar().map((el, index) => (
+          <div key={index}>
+            {el.source?.content} ➡️ <b>{el.target?.content}</b>
+          </div>
+        ))}
+      </div>
+    ),
+    [mapJawabanBenar]
+  );
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
       <p style={{ color: "black" }}>
         <b>
-          Klik item pada bagian pertama untuk dijodohkan dengan item yang sesuai pada bagian kedua!
+          {isPembahasan
+            ? "Jawaban Anda : "
+            : "Klik item pada bagian pertama untuk dijodohkan dengan item yang sesuai pada bagian kedua!"}
         </b>
       </p>
       <div
@@ -129,6 +162,7 @@ export default function Coupleing({
       {value && value.length === source.length && (
         <button
           onClick={() => {
+            if (isPembahasan) return;
             onSelectCouple([]);
             setSelectedSource(undefined);
             setSelectedTarget(undefined);
@@ -145,6 +179,21 @@ export default function Coupleing({
           Ubah Jawaban 🔄
         </button>
       )}
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        <p>
+          <b>Kunci Jawaban</b>
+        </p>
+        {renderKunciJawaban}
+      </div>
     </div>
   );
 }

@@ -1,3 +1,5 @@
+import { AnswerForm, AnswerFormValue } from "../types/answerForm";
+
 export interface Root {
   id: string;
   test_id: string;
@@ -22,6 +24,7 @@ export interface PersentaseBenarByDomain {
   percentage: number;
   totalQuestions: number;
   correctQuestions: number;
+  duration?: number;
 }
 
 export interface PersentaseBenarBySubDomain {
@@ -30,6 +33,7 @@ export interface PersentaseBenarBySubDomain {
   percentage: number;
   totalQuestions: number;
   correctQuestions: number;
+  duration?: number;
 }
 
 export interface PersentaseBenarByTypeAnswer {
@@ -38,6 +42,7 @@ export interface PersentaseBenarByTypeAnswer {
   percentage: number;
   totalQuestions: number;
   correctQuestions: number;
+  duration?: number;
 }
 
 export interface PersentaseBenarByKompetensi {
@@ -46,14 +51,46 @@ export interface PersentaseBenarByKompetensi {
   percentage: number;
   totalQuestions: number;
   correctQuestions: number;
+  duration?: number;
 }
 
-export interface Jawaban {
-  "fed34f57-be69-4c8b-bbff-052e2378032d": Fed34f57Be694c8bBbff052e2378032d;
-}
+export type Jawaban = Record<
+  string,
+  {
+    type: AnswerForm;
+    value?: AnswerFormValue;
+    score: number;
+    duration?: number;
+  }
+>;
 
-export interface Fed34f57Be694c8bBbff052e2378032d {
-  type: string;
-  value: string;
-  score: number;
+export type SliceOfPercentage =
+  | PersentaseBenarByDomain
+  | PersentaseBenarByKompetensi
+  | PersentaseBenarBySubDomain
+  | PersentaseBenarByTypeAnswer;
+
+type SliceKeys =
+  | keyof PersentaseBenarByDomain
+  | keyof PersentaseBenarByKompetensi
+  | keyof PersentaseBenarBySubDomain
+  | keyof PersentaseBenarByTypeAnswer;
+
+export type AllowedKeyValueFromSliceOfPercentage = Extract<
+  SliceKeys,
+  "domainId" | "subDomainId" | "kompetensiId" | "type"
+>;
+
+export type AllowedKeyFromSliceOfPercentage = Extract<
+  SliceKeys,
+  "domain" | "subDomain" | "kompetensi" | "label"
+>;
+
+export interface ISection {
+  title: string;
+  data: SliceOfPercentage[];
+  key: AllowedKeyFromSliceOfPercentage;
+  keyValue: AllowedKeyValueFromSliceOfPercentage;
+  colors: string[];
+  onClick: (data: string) => void;
 }

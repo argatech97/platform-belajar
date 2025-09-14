@@ -11,28 +11,37 @@ export default function Countdown({
 }) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
 
+  // Sinkronisasi kalau initialTime berubah
+  useEffect(() => {
+    setTimeLeft(initialTime);
+  }, [initialTime]);
+
+  // Interval jalan
   useEffect(() => {
     const timer = setInterval(() => {
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        return;
-      } else {
-        const newValue = timeLeft - 1;
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        const newValue = prev - 1;
         localStorage.setItem("timeLeft", `${newValue}`);
-        setTimeLeft(newValue);
-      }
+        return newValue;
+      });
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [timeLeft, onEnd, onChange]);
+  }, [initialTime]); // restart kalau initialTime ganti
 
+  // Trigger event
   useEffect(() => {
     if (timeLeft <= 0) {
       console.log("Countdown ended, calling onEnd");
       onEnd(timeLeft);
-      return;
+    } else {
+      onChange?.(timeLeft);
     }
-  }, [timeLeft]);
+  }, [timeLeft, onEnd, onChange]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);

@@ -78,8 +78,6 @@ export default function Page() {
               title: el.name,
               description: `⏰ ${el.durasi_seconds / 60} Menit; 💬 ${el.jumlah_soal} Soal;  📅 ${formatDate(el.live_at)}`,
               action: () => {
-                localStorage.removeItem("timeLeft");
-                localStorage.removeItem("testResult");
                 window.open(
                   `/preparation?total_question=${el.jumlah_soal}&name=${el.name}&navbarTitle=${el.name}&id=${el.id}&duration=${el.durasi_seconds}&testType=Try Out&testTypeId=${testTypeId}`,
                   "_blank"

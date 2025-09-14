@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -8,13 +7,25 @@ import Container from "../../components/Container";
 import CloseNavigation from "../../components/CloseNavigation";
 import CircleWithInner from "../../components/CircleShape";
 import {
+  ISection,
   PersentaseBenarByDomain,
   PersentaseBenarByKompetensi,
   PersentaseBenarBySubDomain,
   PersentaseBenarByTypeAnswer,
   Root,
+  SliceOfPercentage,
 } from "./types";
 import Loading from "@/components/Loading";
+import {
+  getQuestionsByDomainId,
+  getQuestionsByKompetensiId,
+  getQuestionsBySubDomainId,
+  getQuestionsByType,
+  handleGroupBy,
+} from "./helper";
+import { IQuestionForm } from "../types/answerForm";
+import { mapEntitiesToQuestions } from "@/helper/mapSoalFromDB";
+import { formattedElapsed } from "@/helper/formatedElapasedTime";
 
 const styles: { [k: string]: React.CSSProperties } = {
   page: {
@@ -121,7 +132,7 @@ export default function PageGokilInline() {
   const router = useRouter();
   const params = useSearchParams();
   const prefersReduced = useReducedMotion();
-
+  const [questions, setQuestions] = useState<IQuestionForm[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [testResult, setTestResult] = useState<{
     maximumScore: number;
@@ -129,20 +140,73 @@ export default function PageGokilInline() {
     testName: string;
     testTime: string;
   } | null>(null);
-  const [percentageByAnswerType, setPercentageByAnswerType] =
-    useState<PersentaseBenarByTypeAnswer[]>();
-  const [percentageBySubDomain, setPercentageBySubDomain] =
-    useState<PersentaseBenarBySubDomain[]>();
-  const [percentageByDomain, setPercentageByDomain] = useState<PersentaseBenarByDomain[]>();
-  const [percentageByKompetensi, setPercentageByKompetensi] =
-    useState<PersentaseBenarByKompetensi[]>();
+  const [percentageByAnswerType, setPercentageByAnswerType] = useState<
+    PersentaseBenarByTypeAnswer[]
+  >([]);
+  const [percentageBySubDomain, setPercentageBySubDomain] = useState<PersentaseBenarBySubDomain[]>(
+    []
+  );
+  const [percentageByDomain, setPercentageByDomain] = useState<PersentaseBenarByDomain[]>([]);
+  const [percentageByKompetensi, setPercentageByKompetensi] = useState<
+    PersentaseBenarByKompetensi[]
+  >([]);
 
   const [copied, setCopied] = useState(false);
   const [userName, setUserName] = useState("");
 
+  const fetchData = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("token-platform-belajar");
+      if (!token) {
+        router.replace("/auth");
+        return;
+      }
+
+      const resTest = await fetch(`/api/question/${params.get("id")}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (resTest.status === 401) {
+        router.replace("/auth");
+        return;
+      }
+      if (resTest.ok) {
+        const { data } = await resTest.json();
+        const mappingData = await mapEntitiesToQuestions(data);
+        localStorage.setItem("soal-aktif-platform-belajar", JSON.stringify(mappingData));
+      }
+
+      const resContent = await fetch(`/api/content/${params.get("id")}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (resContent.status === 401) {
+        router.replace("/auth");
+        return;
+      }
+      if (resContent.ok) {
+        const { data } = await resContent.json();
+        const contentDatas = data.map((el: { id: string; data: string }) => ({
+          id: el.id,
+          value: el.data,
+        }));
+        localStorage.setItem("content-aktif-platform-belajar", JSON.stringify(contentDatas));
+      }
+    } catch (err) {
+      console.error("Failed to fetch test/content", err);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [params, router]);
+
+  useEffect(() => {
+    const x = JSON.parse(localStorage.getItem("soal-aktif-platform-belajar") || "{}");
+    setQuestions(x);
+  }, []);
+
   useEffect(() => {
     try {
-      const storedName = localStorage.getItem("user_name") || "";
+      const storedName =
+        JSON.parse(localStorage.getItem("user-platform-belajar") || "{}").nama_lengkap || "";
       setUserName(storedName);
     } catch (e) {
       // ignore
@@ -166,19 +230,23 @@ export default function PageGokilInline() {
 
         const data: Root = await res.json();
 
-        const minutes = Math.floor(Number(data.time_spent) / 60);
-        const seconds = Number(data.time_spent) % 60;
-        const formattedElapsed = `${minutes} Menit ${seconds.toString().padStart(2, "0")} Detik`;
-
         const mappedTestResult = {
           maximumScore: Number(data.skor),
           score: Number(data.skor),
           testName: data.test_name,
-          testTime: formattedElapsed,
+          testTime: formattedElapsed(data.time_spent),
         };
 
         setTestResult(mappedTestResult);
         localStorage.setItem("testResult", JSON.stringify(mappedTestResult));
+        localStorage.setItem(
+          data.test_name,
+          JSON.stringify({
+            answers: data.jawaban,
+            currentIndex: 0,
+            updatedAt: Date.now(),
+          })
+        );
 
         if (data.persentase_benar_by_type_answer) {
           setPercentageByAnswerType(data.persentase_benar_by_type_answer);
@@ -218,16 +286,20 @@ export default function PageGokilInline() {
     try {
       const capaian_id = params.get("capaian_id");
       if (capaian_id) {
-        fetchResults(capaian_id);
+        fetchData().finally(() => fetchResults(capaian_id));
         return;
       }
-      const lsTestResult = localStorage.getItem("testResult");
+      const lsTestResult = JSON.parse(localStorage.getItem("testResult") || "{}");
       const lsPercentageByType = localStorage.getItem("percentageByType");
       const lsPercentageBySubDomain = localStorage.getItem("percentageBySubDomain");
       const lsPercentageByDomain = localStorage.getItem("percentageByDomain");
       const lsPercentageByKompetensi = localStorage.getItem("percentageByKompetensi");
 
-      if (lsTestResult) setTestResult(JSON.parse(lsTestResult));
+      if (lsTestResult)
+        setTestResult({
+          ...lsTestResult,
+          testTime: formattedElapsed(lsTestResult.testTime),
+        });
       if (lsPercentageByType) setPercentageByAnswerType(JSON.parse(lsPercentageByType));
       if (lsPercentageBySubDomain) setPercentageBySubDomain(JSON.parse(lsPercentageBySubDomain));
       if (lsPercentageByDomain) setPercentageByDomain(JSON.parse(lsPercentageByDomain));
@@ -237,7 +309,7 @@ export default function PageGokilInline() {
       const capaian_id = params.get("capaian_id");
       if (capaian_id) fetchResults(capaian_id);
     }
-  }, [params, router]);
+  }, [fetchData, formattedElapsed, params, router]);
 
   const handleClose = useCallback((noClose?: boolean) => {
     try {
@@ -247,41 +319,76 @@ export default function PageGokilInline() {
       localStorage.removeItem("percentageBySubDomain");
       localStorage.removeItem("percentageByType");
     } catch (e) {
-      // ignore
+      alert((e as Error).message);
     }
     if (!noClose) {
       window.close();
     }
   }, []);
 
-  const sections = useMemo(
+  const goToPembahasan = useCallback(
+    (res: IQuestionForm[]) => {
+      localStorage.setItem("pembahasan-aktif-platform-belajar", JSON.stringify(res));
+      router.push(`/test/pembahasan?navbarTitle=${params.get("name")}&id=${params.get("id")}`);
+    },
+    [params, router]
+  );
+
+  const sections: ISection[] = useMemo(
     () => [
       {
         title: "🌐 Domain",
         data: percentageByDomain,
         key: "domain",
+        keyValue: "domainId",
         colors: ["#34d399", "#10b981"],
+        onClick: (data: string) => {
+          const res = getQuestionsByDomainId(questions, data);
+          goToPembahasan(res);
+        },
       },
       {
         title: "📚 Sub Domain",
         data: percentageBySubDomain,
         key: "subDomain",
+        keyValue: "subDomainId",
         colors: ["#60a5fa", "#3b82f6"],
+        onClick: (data: string) => {
+          const res = getQuestionsBySubDomainId(questions, data);
+          goToPembahasan(res);
+        },
       },
       {
         title: "💡 Kompetensi",
         data: percentageByKompetensi,
         key: "kompetensi",
+        keyValue: "kompetensiId",
         colors: ["#fbbf24", "#f59e0b"],
+        onClick: (data: string) => {
+          const res = getQuestionsByKompetensiId(questions, data);
+          goToPembahasan(res);
+        },
       },
       {
         title: "📝 Tipe Jawaban",
         data: percentageByAnswerType,
         key: "label",
+        keyValue: "type",
         colors: ["#c084fc", "#a855f7"],
+        onClick: (data: string) => {
+          const res = getQuestionsByType(questions, data);
+          goToPembahasan(res);
+        },
       },
     ],
-    [percentageByAnswerType, percentageByDomain, percentageByKompetensi, percentageBySubDomain]
+    [
+      goToPembahasan,
+      percentageByAnswerType,
+      percentageByDomain,
+      percentageByKompetensi,
+      percentageBySubDomain,
+      questions,
+    ]
   );
 
   const onCopyScore = async () => {
@@ -298,6 +405,14 @@ export default function PageGokilInline() {
 
   const openRanking = () => {
     router.push(`/ranking?id=${params.get("id")}&title=${params.get("name")}`);
+  };
+
+  const openPembahasan = () => {
+    localStorage.setItem(
+      "pembahasan-aktif-platform-belajar",
+      localStorage.getItem("soal-aktif-platform-belajar") || "{}"
+    );
+    router.push(`/test/pembahasan?navbarTitle=${params.get("name")}&id=${params.get("id")}`);
   };
 
   const getName = useMemo(() => {
@@ -396,10 +511,11 @@ export default function PageGokilInline() {
                     </div>
                   )}
 
-                  {section.data?.map((item: any, idx: number) => {
+                  {section.data?.map((item: SliceOfPercentage, idx: number) => {
                     const percent = Math.min(100, Math.max(0, Number(item.percentage || 0)));
                     const correct = Number(item.correctQuestions ?? 0);
                     const total = Number(item.totalQuestions ?? 0);
+                    const duration = item.duration ? `${item.duration}` : undefined;
                     const wrong = Math.max(0, total - correct);
 
                     return (
@@ -410,6 +526,9 @@ export default function PageGokilInline() {
                         tabIndex={0}
                         role="group"
                         aria-label={`${section.title} item ${idx + 1}`}
+                        onClick={() => {
+                          section.onClick(handleGroupBy(item, section.keyValue));
+                        }}
                       >
                         <div
                           style={{
@@ -419,7 +538,9 @@ export default function PageGokilInline() {
                             marginBottom: 8,
                           }}
                         >
-                          <div style={{ fontWeight: 600 }}>{item[section.key] ?? "-"}</div>
+                          <div style={{ fontWeight: 600 }}>
+                            {item[section.key as keyof SliceOfPercentage] ?? "-"}
+                          </div>
                           <div style={{ fontWeight: 700 }}>{percent}% 🎯</div>
                         </div>
 
@@ -443,6 +564,7 @@ export default function PageGokilInline() {
                             gap: 12,
                           }}
                         >
+                          {duration && <div>⏰ {formattedElapsed(duration)}</div>}
                           <div>✅ Benar: {correct}</div>
                           <div>❌ Salah: {wrong}</div>
                           <div>📊 Total: {total}</div>
@@ -459,15 +581,15 @@ export default function PageGokilInline() {
 
       <div style={styles.floatingBtnWrapper}>
         <button
-          onClick={openRanking}
+          onClick={openPembahasan}
           style={{
             ...styles.floatingBtn,
-            background: "linear-gradient(90deg,#ec4899,#f59e0b)",
-            color: "#fff",
+            ...styles.buttonPrimary,
+            ...styles.btnGradient1,
           }}
-          aria-label="lihat ranking"
+          aria-label="pembahasan"
         >
-          🚀 Lihat Ranking — Tantang Temanmu!
+          🚀 Lihat Pembahasan !
         </button>
       </div>
 

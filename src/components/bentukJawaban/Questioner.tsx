@@ -1,12 +1,16 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import { IOption, QuestionerValue } from "../../app/types/answerForm";
 
 export default function Questioner({
   source,
   option,
   value,
+  isPembahasan,
   onClick,
+  kunciJawaban,
 }: {
+  kunciJawaban: QuestionerValue;
+  isPembahasan?: boolean;
   source: IOption<string>[];
   option: IOption<string>[];
   value: QuestionerValue;
@@ -22,10 +26,35 @@ export default function Questioner({
     });
   }, [source, value]);
 
+  const mapJawabanBenar = useCallback(() => {
+    return kunciJawaban.map((jb) => {
+      const sourceItem = source.find((s) => s.value === jb.sourceId) || null;
+      const optionItem = option.find((o) => o.value === jb.targetId) || null;
+
+      return {
+        source: sourceItem,
+        target: optionItem,
+      };
+    });
+  }, [kunciJawaban, source, option]);
+
+  const renderKunciJawaban = useMemo(
+    () => (
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        {mapJawabanBenar().map((el, index) => (
+          <div key={index}>
+            {el.source?.content} ➡️ <b>{el.target?.content}</b>
+          </div>
+        ))}
+      </div>
+    ),
+    [mapJawabanBenar]
+  );
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <p style={{ marginBottom: "5px", color: "black" }}>
-        <b>Berikan tanda centang pada setiap keterangan!</b>
+        <b>{isPembahasan ? "Jawaban Anda :" : "Berikan tanda centang pada setiap keterangan!"}</b>
       </p>
       <div style={{ display: "flex", backgroundColor: "#f0f0f0" }}>
         <div style={{ padding: "10px", textAlign: "center", flexGrow: "1", color: "black" }}>
@@ -52,6 +81,7 @@ export default function Questioner({
           {option.map((opt, idx) => (
             <div
               onClick={() => {
+                if (isPembahasan) return;
                 const newValue = optionList.map((item, i) =>
                   i === index ? { ...item, value: opt.value } : item
                 );
@@ -65,6 +95,21 @@ export default function Questioner({
           ))}
         </div>
       ))}
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        <p>
+          <b>Kunci Jawaban</b>
+        </p>
+        {renderKunciJawaban}
+      </div>
     </div>
   );
 }

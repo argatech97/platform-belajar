@@ -1,10 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 
 export default function ShortAnswer({
   type,
   value,
   onchange,
+  isPembahasan,
+  kunciJawaban,
 }: {
+  kunciJawaban: (number | string)[];
+  isPembahasan?: boolean;
   type: "number" | "text";
   value: string | number;
   onchange: (value: string | number) => void;
@@ -15,13 +19,24 @@ export default function ShortAnswer({
     setValueComponent(value);
   }, [value]);
 
+  const renderKunciJawaban = useMemo(() => {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+        <p>{kunciJawaban.join(", ")}</p>
+      </div>
+    );
+  }, [kunciJawaban]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
       <p style={{ color: "black" }}>
-        <b>Tulis jawabanmu di bawah ini</b>
+        <b>{isPembahasan ? "Jawaban Anda :" : "Tulis jawabanmu di bawah ini"}</b>
       </p>
       <input
-        onChange={(e) => onchange(e.target.value)}
+        onChange={(e) => {
+          if (isPembahasan) return;
+          onchange(e.target.value);
+        }}
         type={type}
         value={valueComponent}
         style={{
@@ -33,6 +48,21 @@ export default function ShortAnswer({
           backgroundColor: "white",
         }}
       />
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        <p>
+          <b>Kunci Jawaban</b>
+        </p>
+        {renderKunciJawaban}
+      </div>
     </div>
   );
 }

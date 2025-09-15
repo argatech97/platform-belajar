@@ -47,7 +47,10 @@ export function useAnswers(
   );
 
   const isAnsweredSet = useMemo(
-    () => new Set(Object.keys(answers).filter((el) => answers[el].value !== undefined)),
+    () =>
+      answers
+        ? new Set(Object.keys(answers).filter((el) => answers[el].value !== undefined))
+        : new Set(""),
     [answers]
   );
 

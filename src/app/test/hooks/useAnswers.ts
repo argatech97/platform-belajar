@@ -42,7 +42,7 @@ export function useAnswers(
   const [typeOfAnswer, setTypeOfAnswer] = useState<"number" | "text">("text");
 
   const activeAnswer: ActiveAnswer = useMemo(
-    () => (answers && answers[activeItem?.id || ""]) || {},
+    () => (answers && answers[activeItem?.id || ""]) || undefined,
     [answers, activeItem]
   );
 

@@ -43,8 +43,15 @@ export const LoginForm = memo(function LoginForm({
         });
         onSetLoading(false);
 
+        const roleList = await fetch("/api/reference/role");
+        const roleAlias = ((await roleList.json()) as { id: string; name: string }[]).find(
+          (el) => el.id === res.user.role
+        )?.name;
         localStorage.setItem("token-platform-belajar", res.token);
-        localStorage.setItem("user-platform-belajar", JSON.stringify(res.user));
+        localStorage.setItem(
+          "user-platform-belajar",
+          JSON.stringify({ ...res.user, role_alias: roleAlias })
+        );
         onLoginSuccess(res.user);
       } catch (err: any) {
         onSetLoading(false);

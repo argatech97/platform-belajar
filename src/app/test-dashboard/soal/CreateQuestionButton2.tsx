@@ -31,6 +31,7 @@ const CreateQuestionButton2: React.FC<Props> = ({
 
   const [form, setForm] = useState({
     question: "",
+    pembahasan: "", // ✅ tambahkan field pembahasan
     content_id: "",
     domain_id: "",
     sub_domain_id: "",
@@ -165,16 +166,6 @@ const CreateQuestionButton2: React.FC<Props> = ({
       }
 
       onSuccess();
-      // setOpen(false);
-      // setForm({
-      //   question: "",
-      //   content_id: "",
-      //   domain_id: "",
-      //   sub_domain_id: "",
-      //   kompetensi_id: "",
-      //   question_type_id: "",
-      //   data: "",
-      // });
     } finally {
       setLoading(false);
     }
@@ -361,6 +352,24 @@ const CreateQuestionButton2: React.FC<Props> = ({
                 <textarea
                   name="data"
                   value={form.data}
+                  onChange={handleChange}
+                  style={{
+                    width: "100%",
+                    height: "200px",
+                    padding: "10px",
+                    borderRadius: "6px",
+                    border: "1px solid #ccc",
+                    resize: "vertical",
+                  }}
+                />
+              </div>
+
+              {/* ✅ Field Pembahasan */}
+              <div>
+                <label>Pembahasan</label>
+                <textarea
+                  name="pembahasan"
+                  value={form.pembahasan}
                   onChange={handleChange}
                   style={{
                     width: "100%",

@@ -1,8 +1,29 @@
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 export default function BottomNavigation() {
   const router = useRouter();
+  const [roleAlias, setRoleAlias] = useState<"Peserta Didik" | "Pendidik">();
+  const handleRedirectCapaian = useCallback(() => {
+    if (roleAlias === "Pendidik") {
+      router.push("/capaian-kelas?navbarTitle=Capaian Kelas");
+    } else if (roleAlias === "Peserta Didik") {
+      router.push("/capaian?navbarTitle=Capaian saya");
+    } else {
+      router.push("/auth");
+    }
+  }, [roleAlias, router]);
+
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
+      if (!user) throw new Error("user tidak ditemukan");
+      setRoleAlias(user.role_alias);
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
+
   return (
     <div
       style={{
@@ -31,9 +52,7 @@ export default function BottomNavigation() {
         />
       </svg>
       <svg
-        onClick={() => {
-          router.push("/capaian?navbarTitle=Capain");
-        }}
+        onClick={handleRedirectCapaian}
         width="20"
         height="20"
         viewBox="0 0 30 30"

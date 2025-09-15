@@ -99,30 +99,49 @@ export default function Coupleing({
     });
   }, [findBgColor, isPembahasan, target]);
 
-  const mapJawabanBenar = useCallback(() => {
-    return kunciJawaban.map((jb) => {
-      const sourceItem = source.find((s) => s.value === jb.sourceId) || null;
-      const optionItem = target.find((o) => o.value === jb.targetId) || null;
+  const mapJawabanBenar = useMemo(() => {
+    if (!isPembahasan) return;
+    return kunciJawaban
+      .map((jb) => {
+        const sourceItem = source.find((s) => s.value === jb.sourceId) || null;
+        const optionItem = target.find((o) => o.value === jb.targetId) || null;
 
-      return {
-        source: sourceItem,
-        target: optionItem,
-      };
-    });
-  }, [kunciJawaban, source, target]);
+        return {
+          source: sourceItem,
+          target: optionItem,
+        };
+      })
+      .map((el, index) => (
+        <div key={index}>
+          {el.source?.content} ➡️ <b>{el.target?.content}</b>
+        </div>
+      ));
+  }, [isPembahasan, kunciJawaban, source, target]);
 
-  const renderKunciJawaban = useMemo(
-    () => (
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {mapJawabanBenar().map((el, index) => (
-          <div key={index}>
-            {el.source?.content} ➡️ <b>{el.target?.content}</b>
-          </div>
-        ))}
+  const renderKunciJawaban = useMemo(() => {
+    if (!isPembahasan) return;
+    return (
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        <p>
+          {" "}
+          <b>Kunci Jawaban</b>
+        </p>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {mapJawabanBenar}
+        </div>
       </div>
-    ),
-    [mapJawabanBenar]
-  );
+    );
+  }, [isPembahasan, mapJawabanBenar]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -179,21 +198,7 @@ export default function Coupleing({
           Ubah Jawaban 🔄
         </button>
       )}
-      <div
-        style={{
-          padding: "15px",
-          borderRadius: "10px",
-          background: "#f6f6f6",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-        }}
-      >
-        <p>
-          <b>Kunci Jawaban</b>
-        </p>
-        {renderKunciJawaban}
-      </div>
+      {renderKunciJawaban}
     </div>
   );
 }

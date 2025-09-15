@@ -16,14 +16,32 @@ export default function MultipleChoice({
   onClick: (value: string) => void;
 }) {
   const renderKunciJawaban = useMemo(() => {
+    if (!isPembahasan) return <></>;
     const x = options.find((el) => el.value === kunciJawaban);
     return (
-      <>
-        {" "}
-        {x?.value}. {x?.content}
-      </>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          borderRadius: "10px",
+          background: "rgb(246, 246, 246)",
+          padding: "15px",
+          gap: "10px",
+        }}
+      >
+        {isPembahasan && (
+          <p>
+            {" "}
+            <b>Kunci Jawaban</b>
+          </p>
+        )}
+        <>
+          {" "}
+          {x?.value}. {x?.content}
+        </>
+      </div>
     );
-  }, [kunciJawaban, options]);
+  }, [isPembahasan, kunciJawaban, options]);
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
       <p style={{ color: "black" }}>
@@ -46,22 +64,7 @@ export default function MultipleChoice({
           description={`${item.content}`}
         />
       ))}
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          borderRadius: "10px",
-          background: "rgb(246, 246, 246)",
-          padding: "15px",
-          gap: "10px",
-        }}
-      >
-        <p>
-          {" "}
-          <b>Kunci Jawaban</b>
-        </p>
-        {renderKunciJawaban}
-      </div>
+      {renderKunciJawaban}
     </div>
   );
 }

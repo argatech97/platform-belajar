@@ -26,18 +26,36 @@ export default function MultipleSelect({
   }, [selectedOptions]);
 
   const renderKunciJawaban = useMemo(() => {
+    if (!isPembahasan) return;
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {options
-          .filter((el) => kunciJawaban.includes(el.value))
-          .map((el, index) => (
-            <div key={index}>
-              {el.value}. {el.content}
-            </div>
-          ))}
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        {isPembahasan && (
+          <p>
+            {" "}
+            <b>Kunci Jawaban</b>
+          </p>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {options
+            .filter((el) => kunciJawaban.includes(el.value))
+            .map((el, index) => (
+              <div key={index}>
+                {el.value}. {el.content}
+              </div>
+            ))}
+        </div>
       </div>
     );
-  }, [kunciJawaban, options]);
+  }, [isPembahasan, kunciJawaban, options]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "10px" }}>
@@ -64,21 +82,7 @@ export default function MultipleSelect({
           description={`${item.content}`}
         />
       ))}
-      <div
-        style={{
-          padding: "15px",
-          borderRadius: "10px",
-          background: "#f6f6f6",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-        }}
-      >
-        <p>
-          <b>Kunci Jawaban</b>
-        </p>
-        {renderKunciJawaban}
-      </div>
+      {renderKunciJawaban}
     </div>
   );
 }

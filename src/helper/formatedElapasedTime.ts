@@ -1,6 +1,7 @@
 export const formattedElapsed = (time_spent: string) => {
-  const minutes = Math.floor(Number(time_spent) / 60);
-  const seconds = Number(time_spent) % 60;
-  const formattedElapsed = `${minutes} Menit ${seconds.toString().padStart(2, "0")} Detik`;
-  return formattedElapsed;
+  const totalSeconds = Number(time_spent);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = Math.round(totalSeconds % 60);
+  const formattedSeconds = seconds.toString().padStart(2, "0");
+  return `${minutes} Menit ${formattedSeconds} Detik`;
 };

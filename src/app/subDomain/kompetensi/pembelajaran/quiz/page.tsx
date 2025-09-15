@@ -865,6 +865,7 @@ export default function Page() {
             selectedOptions={(activeAnswer?.value as abcd) || undefined}
             options={opsiPilihanGanda || []}
             onClick={handleMultipleChoice}
+            kunciJawaban={activeItem.correctAnswer}
           />
         )}
 
@@ -873,6 +874,7 @@ export default function Page() {
             selectedOptions={(activeAnswer?.value as abcd[]) || []}
             options={opsiPilihanGanda || []}
             onClick={handleMultipleSelect}
+            kunciJawaban={activeItem.correctAnswer}
           />
         )}
 
@@ -881,6 +883,7 @@ export default function Page() {
             value={(activeAnswer?.value as ShortAnswerValue) || ""}
             type={typeOfAnswer}
             onchange={handleShortAnswer}
+            kunciJawaban={activeItem.correctAnswer}
           />
         )}
 
@@ -890,6 +893,7 @@ export default function Page() {
             option={questionerResource?.option || []}
             value={(activeAnswer?.value as QuestionerValue) || []}
             onClick={handleQuestioner}
+            kunciJawaban={activeItem.correctAnswer}
           />
         )}
 
@@ -899,6 +903,7 @@ export default function Page() {
             target={coupleingResource?.target || []}
             originalValue={(activeAnswer?.value as CoupleingValue) || []}
             onSelectCouple={handleCoupleing}
+            kunciJawaban={activeItem.correctAnswer}
           />
         )}
       </div>

@@ -3,7 +3,7 @@ import MultipleChoice from "@/components/bentukJawaban/MultipleChoice";
 import MultipleSelect from "@/components/bentukJawaban/MultipleSelect";
 import Questioner from "@/components/bentukJawaban/Questioner";
 import ShortAnswer from "@/components/bentukJawaban/ShortAnswer";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActiveAnswer } from "../types";
 import {
   abcd,
@@ -133,6 +133,53 @@ export default function Soal({
     },
     [activeItem, setAnswer]
   );
+
+  const renderPembahasan = useMemo(
+    () =>
+      activeItem && activeItem.pembahasan && isPembahasan ? (
+        <div
+          style={{
+            padding: "15px",
+            background: "#f6f6f6",
+            display: "flex",
+            flexDirection: "column",
+            gap: "15px",
+            borderRadius: "10px",
+          }}
+        >
+          <p>
+            <b>Pembahasan</b>
+          </p>
+          <div dangerouslySetInnerHTML={{ __html: activeItem?.pembahasan }}></div>
+        </div>
+      ) : (
+        <></>
+      ),
+    [activeItem, isPembahasan]
+  );
+
+  const renderDuration = useMemo(
+    () =>
+      activeAnswer && activeAnswer.duration && isPembahasan ? (
+        <div
+          style={{
+            padding: "15px",
+            borderRadius: "10px",
+            background: "#f6f6f6",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <p>
+            <b>Durasi</b>
+          </p>
+          {formattedElapsed(`${activeAnswer.duration}`)}
+        </div>
+      ) : (
+        <></>
+      ),
+    [activeAnswer, isPembahasan]
+  );
   return (
     <div
       style={{
@@ -150,12 +197,10 @@ export default function Soal({
           dangerouslySetInnerHTML={{ __html: contentActive }}
         />
       )}
-
       <div
         style={{ color: "black", paddingBottom: "10px" }}
         dangerouslySetInnerHTML={{ __html: activeItem?.question || "" }}
       />
-
       {activeItem?.type === "multiple-choice" && (
         <MultipleChoice
           kunciJawaban={activeItem.correctAnswer}
@@ -165,7 +210,6 @@ export default function Soal({
           onClick={handleMultipleChoice}
         />
       )}
-
       {activeItem?.type === "multiple-select" && (
         <MultipleSelect
           kunciJawaban={activeItem.correctAnswer}
@@ -175,7 +219,6 @@ export default function Soal({
           onClick={handleMultipleSelect}
         />
       )}
-
       {activeItem?.type === "short-answer" && typeOfAnswer && (
         <ShortAnswer
           kunciJawaban={activeItem.correctAnswer}
@@ -185,7 +228,6 @@ export default function Soal({
           onchange={handleShortAnswer}
         />
       )}
-
       {activeItem?.type === "questioner" && (
         <Questioner
           kunciJawaban={activeItem.correctAnswer}
@@ -196,7 +238,6 @@ export default function Soal({
           onClick={handleQuestioner}
         />
       )}
-
       {activeItem?.type === "coupleing" && (
         <Coupleing
           kunciJawaban={activeItem.correctAnswer}
@@ -207,23 +248,8 @@ export default function Soal({
           onSelectCouple={handleCoupleing}
         />
       )}
-
-      {activeAnswer && activeAnswer.duration && (
-        <div
-          style={{
-            padding: "15px",
-            borderRadius: "10px",
-            background: "#f6f6f6",
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <p>
-            <b>Durasi</b>
-          </p>
-          {formattedElapsed(`${activeAnswer.duration}`)}
-        </div>
-      )}
+      {renderDuration}
+      {renderPembahasan}
     </div>
   );
 }

@@ -14,21 +14,24 @@ export default function Page() {
   const [domain, setDomain] = useState<{ id: string; name: string; description: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [token, setToken] = useState<string>();
+  const [userAlias, seteUserAlias] = useState<"Peserta Didik" | "Pendidik">();
 
   // memo
   const feature: { id: string; name: string; description: string }[] = useMemo(() => {
-    return [
-      ...domain,
-      {
-        id: "tryout",
-        name: "Try Out",
-        description: "Latihan berkala lewat Try Out untuk tingkatkan kompetensimu",
-      },
-    ];
-  }, [domain]);
+    if (userAlias === "Peserta Didik") {
+      return [
+        ...domain,
+        {
+          id: "tryout",
+          name: "Try Out",
+          description: "Latihan berkala lewat Try Out untuk tingkatkan kompetensimu",
+        },
+      ];
+    }
+    return [...domain];
+  }, [domain, userAlias]);
 
   const tokenIsAvailabel = useMemo(() => {
-    console.log(token);
     return token && token.length > 0 ? true : false;
   }, [token]);
 
@@ -43,7 +46,28 @@ export default function Page() {
       .finally(() => {
         setLoading(false);
       });
+    const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
+    seteUserAlias(user.role_alias);
   }, []);
+
+  const renderAdditionalFeature = useMemo(() => {
+    return userAlias === "Peserta Didik" ? (
+      <TableSingleColumn
+        title={"Ada tugas hari ini ?"}
+        items={[
+          {
+            title: "Segera hadir",
+            description: "Fitur ini masih dalam pengembangan",
+            action: () => {
+              // router.push("/tugas");
+            },
+          },
+        ]}
+      />
+    ) : (
+      <></>
+    );
+  }, [userAlias]);
 
   //handler
   const handleFeatureClick = useCallback(
@@ -86,18 +110,7 @@ export default function Page() {
                 title: el.name,
               }))}
             />
-            <TableSingleColumn
-              title={"Ada tugas hari ini ?"}
-              items={[
-                {
-                  title: "Segera hadir",
-                  description: "Fitur ini masih dalam pengembangan",
-                  action: () => {
-                    // router.push("/tugas");
-                  },
-                },
-              ]}
-            />
+            {renderAdditionalFeature}
           </div>
           <BottomNavigation />
         </>

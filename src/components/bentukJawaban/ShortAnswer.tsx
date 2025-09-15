@@ -20,12 +20,30 @@ export default function ShortAnswer({
   }, [value]);
 
   const renderKunciJawaban = useMemo(() => {
+    if (!isPembahasan) return;
     return (
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <p>{kunciJawaban.join(", ")}</p>
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        {isPembahasan && (
+          <p>
+            {" "}
+            <b>Kunci Jawaban</b>
+          </p>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          <p>{kunciJawaban.join(", ")}</p>
+        </div>
       </div>
     );
-  }, [kunciJawaban]);
+  }, [isPembahasan, kunciJawaban]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -48,21 +66,7 @@ export default function ShortAnswer({
           backgroundColor: "white",
         }}
       />
-      <div
-        style={{
-          padding: "15px",
-          borderRadius: "10px",
-          background: "#f6f6f6",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-        }}
-      >
-        <p>
-          <b>Kunci Jawaban</b>
-        </p>
-        {renderKunciJawaban}
-      </div>
+      {renderKunciJawaban}
     </div>
   );
 }

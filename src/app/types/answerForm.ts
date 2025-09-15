@@ -11,6 +11,7 @@ export interface ISoal<X, Y> {
   subDomainId: string;
   kompetensi: string;
   kompetensiId: string;
+  pembahasan?: string;
 }
 
 export type MultipleChoice = "multiple-choice";
@@ -104,4 +105,5 @@ export interface IQuestionEntity {
   data: IQuestionEntityData; // json (disimpan sebagai stringified JSON)
   test_id: string; // uuid
   question: string;
+  pembahasan?: string;
 }

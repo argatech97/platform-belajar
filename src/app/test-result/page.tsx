@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -7,6 +8,7 @@ import Container from "../../components/Container";
 import CloseNavigation from "../../components/CloseNavigation";
 import CircleWithInner from "../../components/CircleShape";
 import {
+  AllowedKeyValueFromSliceOfPercentage,
   ISection,
   PersentaseBenarByDomain,
   PersentaseBenarByKompetensi,
@@ -14,7 +16,7 @@ import {
   PersentaseBenarByTypeAnswer,
   Root,
   SliceOfPercentage,
-} from "./types";
+} from "../skor/types";
 import Loading from "@/components/Loading";
 import {
   getQuestionsByDomainId,
@@ -22,7 +24,7 @@ import {
   getQuestionsBySubDomainId,
   getQuestionsByType,
   handleGroupBy,
-} from "./helper";
+} from "../skor/helper";
 import { IQuestionForm } from "../types/answerForm";
 import { mapEntitiesToQuestions } from "@/helper/mapSoalFromDB";
 import { formattedElapsed } from "@/helper/formatedElapasedTime";
@@ -128,7 +130,7 @@ const styles: { [k: string]: React.CSSProperties } = {
   },
 };
 
-export default function PageGokilInline() {
+export default function Page() {
   const router = useRouter();
   const params = useSearchParams();
   const prefersReduced = useReducedMotion();
@@ -154,7 +156,7 @@ export default function PageGokilInline() {
   const [copied, setCopied] = useState(false);
   const [userName, setUserName] = useState("");
 
-  const fetchData = useCallback(async () => {
+  const fetchSoal = useCallback(async () => {
     try {
       setIsLoading(true);
       const token = localStorage.getItem("token-platform-belajar");
@@ -200,10 +202,10 @@ export default function PageGokilInline() {
   }, [params, router]);
 
   const fetchHasilCapaian = useCallback(
-    async (capaian_id: string) => {
+    async (id: string) => {
       try {
         setIsLoading(true);
-        const res = await fetch(`/api/test/capaian/detail/${capaian_id}`, {
+        const res = await fetch(`/api/test/capaian/rank/${id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token-platform-belajar") || ""}`,
           },
@@ -213,53 +215,101 @@ export default function PageGokilInline() {
           return;
         }
 
-        const data: Root = await res.json();
+        // Sekarang API return array Root
+        const data: Root[] = await res.json();
+
+        if (!data || data.length === 0) return;
+
+        // ambil rata-rata skor & waktu
+        const totalScore = data.reduce((acc, curr) => acc + Number(curr.skor), 0);
+        const totalTime = data.reduce((acc, curr) => acc + Number(curr.time_spent), 0);
 
         const mappedTestResult = {
-          maximumScore: Number(data.skor),
-          score: Number(data.skor),
-          testName: data.test_name,
-          testTime: formattedElapsed(data.time_spent),
+          maximumScore: Math.max(...data.map((d) => Number(d.skor))),
+          score: Number((totalScore / data.length).toFixed(2)),
+          testName: data[0].test_name,
+          testTime: formattedElapsed(`${totalTime / data.length}`),
         };
 
         setTestResult(mappedTestResult);
         localStorage.setItem("testResult", JSON.stringify(mappedTestResult));
         localStorage.setItem(
-          data.test_name,
+          data[0].test_name,
           JSON.stringify({
-            answers: data.jawaban,
+            answers: {},
             currentIndex: 0,
             updatedAt: Date.now(),
           })
         );
+        // helper untuk rata-rata slice
+        function averageSlices<T extends SliceOfPercentage>(
+          arr: T[][],
+          keyValue: AllowedKeyValueFromSliceOfPercentage
+        ): T[] {
+          const map = new Map<string, T[]>();
 
-        if (data.persentase_benar_by_type_answer) {
-          setPercentageByAnswerType(data.persentase_benar_by_type_answer);
-          localStorage.setItem(
-            "percentageByType",
-            JSON.stringify(data.persentase_benar_by_type_answer)
-          );
+          arr.flat().forEach((item) => {
+            const key = (item as any)[keyValue];
+            if (!map.has(key)) {
+              map.set(key, []);
+            }
+            map.get(key)!.push(item);
+          });
+
+          return Array.from(map.entries()).map(([key, items]) => {
+            const length = items.length;
+            return {
+              ...(items[0] as any),
+              percentage: Number(
+                (items.reduce((acc, it) => acc + it.percentage, 0) / length).toFixed(2)
+              ),
+              totalQuestions: Math.round(
+                items.reduce((acc, it) => acc + it.totalQuestions, 0) / length
+              ),
+              correctQuestions: Math.round(
+                items.reduce((acc, it) => acc + it.correctQuestions, 0) / length
+              ),
+              duration: Number(
+                (items.reduce((acc, it) => acc + (it.duration ?? 0), 0) / length).toFixed(2)
+              ),
+            } as T;
+          });
         }
-        if (data.persentase_benar_by_sub_domain) {
-          setPercentageBySubDomain(data.persentase_benar_by_sub_domain);
-          localStorage.setItem(
-            "percentageBySubDomain",
-            JSON.stringify(data.persentase_benar_by_sub_domain)
-          );
+
+        // hitung rata-rata untuk setiap persentase
+        const avgByType = averageSlices(
+          data.map((d) => d.persentase_benar_by_type_answer),
+          "type"
+        );
+        const avgBySubDomain = averageSlices(
+          data.map((d) => d.persentase_benar_by_sub_domain),
+          "subDomainId"
+        );
+        const avgByDomain = averageSlices(
+          data.map((d) => d.persentase_benar_by_domain),
+          "domainId"
+        );
+        const avgByKompetensi = averageSlices(
+          data.map((d) => d.persentase_benar_by_kompetensi),
+          "kompetensiId"
+        );
+
+        // simpan ke state & localStorage
+        if (avgByType.length) {
+          setPercentageByAnswerType(avgByType);
+          localStorage.setItem("percentageByType", JSON.stringify(avgByType));
         }
-        if (data.persentase_benar_by_domain) {
-          setPercentageByDomain(data.persentase_benar_by_domain);
-          localStorage.setItem(
-            "percentageByDomain",
-            JSON.stringify(data.persentase_benar_by_domain)
-          );
+        if (avgBySubDomain.length) {
+          setPercentageBySubDomain(avgBySubDomain);
+          localStorage.setItem("percentageBySubDomain", JSON.stringify(avgBySubDomain));
         }
-        if (data.persentase_benar_by_kompetensi) {
-          setPercentageByKompetensi(data.persentase_benar_by_kompetensi);
-          localStorage.setItem(
-            "percentageByKompetensi",
-            JSON.stringify(data.persentase_benar_by_kompetensi)
-          );
+        if (avgByDomain.length) {
+          setPercentageByDomain(avgByDomain);
+          localStorage.setItem("percentageByDomain", JSON.stringify(avgByDomain));
+        }
+        if (avgByKompetensi.length) {
+          setPercentageByKompetensi(avgByKompetensi);
+          localStorage.setItem("percentageByKompetensi", JSON.stringify(avgByKompetensi));
         }
       } catch (err) {
         console.error("fetchResults error:", err);
@@ -288,32 +338,15 @@ export default function PageGokilInline() {
 
   useEffect(() => {
     try {
-      const capaian_id = params.get("capaian_id");
-      if (capaian_id) {
-        fetchData().finally(() => fetchHasilCapaian(capaian_id));
+      const id = params.get("id");
+      if (id) {
+        fetchSoal().finally(() => fetchHasilCapaian(id));
         return;
       }
-      const lsTestResult = JSON.parse(localStorage.getItem("testResult") || "{}");
-      const lsPercentageByType = localStorage.getItem("percentageByType");
-      const lsPercentageBySubDomain = localStorage.getItem("percentageBySubDomain");
-      const lsPercentageByDomain = localStorage.getItem("percentageByDomain");
-      const lsPercentageByKompetensi = localStorage.getItem("percentageByKompetensi");
-
-      if (lsTestResult)
-        setTestResult({
-          ...lsTestResult,
-          testTime: formattedElapsed(lsTestResult.testTime),
-        });
-      if (lsPercentageByType) setPercentageByAnswerType(JSON.parse(lsPercentageByType));
-      if (lsPercentageBySubDomain) setPercentageBySubDomain(JSON.parse(lsPercentageBySubDomain));
-      if (lsPercentageByDomain) setPercentageByDomain(JSON.parse(lsPercentageByDomain));
-      if (lsPercentageByKompetensi) setPercentageByKompetensi(JSON.parse(lsPercentageByKompetensi));
-    } catch (err) {
-      console.warn("localStorage read error", err);
-      const capaian_id = params.get("capaian_id");
-      if (capaian_id) fetchHasilCapaian(capaian_id);
+    } catch (e) {
+      alert((e as Error).message);
     }
-  }, [fetchData, fetchHasilCapaian, params, router]);
+  }, [fetchSoal, fetchHasilCapaian, params, router]);
 
   const handleClose = useCallback((noClose?: boolean) => {
     try {
@@ -395,6 +428,7 @@ export default function PageGokilInline() {
     ],
     [
       goToPembahasan,
+      handleGetQuestionByDomainId,
       percentageByAnswerType,
       percentageByDomain,
       percentageByKompetensi,
@@ -448,7 +482,7 @@ export default function PageGokilInline() {
             <div style={{ fontSize: 20, fontWeight: 800 }}>
               🎉 Skor Total — <span style={{ color: "#5b21b6" }}>Kerja Keren!</span>
             </div>
-            <div style={styles.subtitle}>Selamat atas pencapaianmu 🚀- {getName}</div>
+            <div style={styles.subtitle}>Pencapaian kelas Anda🚀</div>
           </div>
 
           <motion.div

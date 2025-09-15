@@ -38,18 +38,36 @@ export default function Questioner({
     });
   }, [kunciJawaban, source, option]);
 
-  const renderKunciJawaban = useMemo(
-    () => (
-      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        {mapJawabanBenar().map((el, index) => (
-          <div key={index}>
-            {el.source?.content} ➡️ <b>{el.target?.content}</b>
-          </div>
-        ))}
+  const renderKunciJawaban = useMemo(() => {
+    if (!isPembahasan) return;
+
+    return (
+      <div
+        style={{
+          padding: "15px",
+          borderRadius: "10px",
+          background: "#f6f6f6",
+          display: "flex",
+          flexDirection: "column",
+          gap: "15px",
+        }}
+      >
+        {isPembahasan && (
+          <p>
+            {" "}
+            <b>Kunci Jawaban</b>
+          </p>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+          {mapJawabanBenar().map((el, index) => (
+            <div key={index}>
+              {el.source?.content} ➡️ <b>{el.target?.content}</b>
+            </div>
+          ))}
+        </div>
       </div>
-    ),
-    [mapJawabanBenar]
-  );
+    );
+  }, [isPembahasan, mapJawabanBenar]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -95,21 +113,7 @@ export default function Questioner({
           ))}
         </div>
       ))}
-      <div
-        style={{
-          padding: "15px",
-          borderRadius: "10px",
-          background: "#f6f6f6",
-          display: "flex",
-          flexDirection: "column",
-          gap: "15px",
-        }}
-      >
-        <p>
-          <b>Kunci Jawaban</b>
-        </p>
-        {renderKunciJawaban}
-      </div>
+      {renderKunciJawaban}
     </div>
   );
 }

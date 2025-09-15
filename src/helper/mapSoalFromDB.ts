@@ -39,6 +39,7 @@ export async function mapEntitiesToQuestions(
           kompetensiId: entity.kompetensi_id,
           kompetensi: entity.kompetensi_name,
           option: parsed.option ?? [],
+          pembahasan: entity.pembahasan,
         };
         return soal;
       }
@@ -58,6 +59,7 @@ export async function mapEntitiesToQuestions(
           kompetensiId: entity.kompetensi_id,
           kompetensi: entity.kompetensi_name,
           option: parsed.option ?? [],
+          pembahasan: entity.pembahasan,
         };
         return soal;
       }
@@ -78,6 +80,7 @@ export async function mapEntitiesToQuestions(
           kompetensi: entity.kompetensi_name,
           source: parsed.source ?? [],
           target: parsed.target ?? [],
+          pembahasan: entity.pembahasan,
         };
         return soal;
       }
@@ -99,6 +102,7 @@ export async function mapEntitiesToQuestions(
           kompetensiId: entity.kompetensi_id,
           kompetensi: entity.kompetensi_name,
           typeOfAnswer: parsed.typeOfAnswer ?? "text",
+          pembahasan: entity.pembahasan,
         };
         return soal;
       }
@@ -119,6 +123,7 @@ export async function mapEntitiesToQuestions(
           kompetensi: entity.kompetensi_name,
           source: parsed.source ?? [],
           target: parsed.target ?? [],
+          pembahasan: entity.pembahasan,
         };
         return soal;
       }

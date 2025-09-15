@@ -40,7 +40,6 @@ function filterQuestionsBy(
 /* --- Convenience wrappers (opsional) --- */
 
 export function getQuestionsByDomainId(questions: IQuestionForm[], selectedDomainId?: string) {
-  console.log(selectedDomainId);
   return filterQuestionsBy(questions, "domainId", selectedDomainId);
 }
 export function getQuestionsByKompetensiId(

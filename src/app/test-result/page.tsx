@@ -218,6 +218,15 @@ export default function Page() {
         // Sekarang API return array Root
         const data: Root[] = await res.json();
 
+        localStorage.setItem(
+          params.get("name") || "",
+          JSON.stringify({
+            answers: {},
+            currentIndex: 0,
+            updatedAt: Date.now(),
+          })
+        );
+
         if (!data || data.length === 0) return;
 
         // ambil rata-rata skor & waktu
@@ -233,14 +242,6 @@ export default function Page() {
 
         setTestResult(mappedTestResult);
         localStorage.setItem("testResult", JSON.stringify(mappedTestResult));
-        localStorage.setItem(
-          data[0].test_name,
-          JSON.stringify({
-            answers: {},
-            currentIndex: 0,
-            updatedAt: Date.now(),
-          })
-        );
         // helper untuk rata-rata slice
         function averageSlices<T extends SliceOfPercentage>(
           arr: T[][],

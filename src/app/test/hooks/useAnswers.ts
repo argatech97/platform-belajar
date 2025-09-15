@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { postRequest } from "@/helper/api";
-import { TestResult, AnswersMap, ActiveAnswer } from "../types";
+import { TestResult, ActiveAnswer } from "../types";
 import {
   AnswerForm,
   AnswerFormValue,
@@ -42,7 +42,7 @@ export function useAnswers(
   const [typeOfAnswer, setTypeOfAnswer] = useState<"number" | "text">("text");
 
   const activeAnswer: ActiveAnswer = useMemo(
-    () => answers[activeItem?.id || ""],
+    () => (answers && answers[activeItem?.id || ""]) || {},
     [answers, activeItem]
   );
 

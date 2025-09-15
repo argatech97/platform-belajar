@@ -28,7 +28,9 @@ export default function Soal({
   coupleingResource,
   setAnswer,
   isPembahasan,
+  stopTimer,
 }: {
+  stopTimer?: boolean;
   isPembahasan?: boolean;
   contentActive?: string;
   activeItem?: IQuestionForm;
@@ -92,6 +94,13 @@ export default function Soal({
       duration
     );
   }, [isPembahasan, setAnswer, duration]);
+
+  useEffect(() => {
+    if (stopTimer && timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [stopTimer]);
 
   // specific typed handlers for each input type
   const handleMultipleChoice = useCallback(

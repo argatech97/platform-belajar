@@ -1,27 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 export default function Countdown({
   initialTime,
   onEnd,
   onChange,
+  isStopTimer,
 }: {
+  isStopTimer?: boolean;
   initialTime: number;
   onEnd: (timeLeft: number) => Promise<void>;
   onChange?: (timeLeft: number) => void;
 }) {
   const [timeLeft, setTimeLeft] = useState(initialTime);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Sinkronisasi kalau initialTime berubah
   useEffect(() => {
     setTimeLeft(initialTime);
   }, [initialTime]);
 
+  useEffect(() => {
+    if (isStopTimer && timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+  }, [isStopTimer]);
+
   // Interval jalan
   useEffect(() => {
-    const timer = setInterval(() => {
+    timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
+        if (prev <= 1 && timerRef.current) {
+          clearInterval(timerRef.current);
           return 0;
         }
         const newValue = prev - 1;
@@ -30,13 +39,14 @@ export default function Countdown({
       });
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [initialTime]); // restart kalau initialTime ganti
 
   // Trigger event
   useEffect(() => {
     if (timeLeft <= 0) {
-      console.log("Countdown ended, calling onEnd");
       onEnd(timeLeft);
     } else {
       onChange?.(timeLeft);

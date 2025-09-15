@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Container from "@/components/Container";
 import { useSearchParams } from "next/navigation";
 import CloseNavigation from "@/components/CloseNavigation";
@@ -19,8 +19,10 @@ import { useAnswers } from "./hooks/useAnswers";
 import { Jawaban } from "../skor/types";
 
 export default function Page() {
-  useSecurePage({ blockCopy: true, blockScreenshot: true });
+  // useSecurePage({ blockCopy: true, blockScreenshot: true });
   useConfirmExit();
+
+  const [isStopTimer, setIsStopTimer] = useState(false);
 
   const POINT_PER_QUESTION = useMemo(() => 5, []);
   const params = useSearchParams();
@@ -50,17 +52,23 @@ export default function Page() {
     setAnswers,
   } = useAnswers(activeItem, testData, POINT_PER_QUESTION);
 
+  useEffect(() => {
+    if (isStopTimer) {
+      localStorage.removeItem("soal-aktif-platform-belajar");
+      localStorage.removeItem("content-aktif-platform-belajar");
+      localStorage.removeItem("testResult");
+      localStorage.removeItem("percentageByDomain");
+      localStorage.removeItem("percentageByKompetensi");
+      localStorage.removeItem("percentageBySubDomain");
+      localStorage.removeItem("percentageByType");
+      localStorage.removeItem("timeLeft");
+      localStorage.removeItem(storagekeyRef.current);
+      window.close();
+    }
+  }, [isStopTimer]);
+
   const handleClose = useCallback(() => {
-    // localStorage.removeItem("soal-aktif-platform-belajar");
-    // localStorage.removeItem("content-aktif-platform-belajar");
-    localStorage.removeItem("testResult");
-    localStorage.removeItem("percentageByDomain");
-    localStorage.removeItem("percentageByKompetensi");
-    localStorage.removeItem("percentageBySubDomain");
-    localStorage.removeItem("percentageByType");
-    localStorage.removeItem("timeLeft");
-    localStorage.removeItem(storagekeyRef.current);
-    window.close();
+    setIsStopTimer(true);
   }, []);
 
   useEffect(() => {
@@ -107,6 +115,7 @@ export default function Page() {
           </p>
           {timeLeft && (
             <Countdown
+              isStopTimer={isStopTimer}
               initialTime={timeLeft}
               onEnd={async (x: number) => {
                 setIsLoading(true);
@@ -144,6 +153,7 @@ export default function Page() {
         opsiPilihanGanda={opsiPilihanGanda}
         questionerResource={questionerResource}
         coupleingResource={coupleingResource}
+        stopTimer={isStopTimer}
       />
       <div className="flex flex-col sticky bottom-0 left-0">
         <BottomNavigation

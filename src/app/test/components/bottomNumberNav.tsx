@@ -36,7 +36,7 @@ export default function BottomNumberNav({
             onClick(index);
           }}
           isAnswered={isAnsweredSet.has(item.id)}
-          isActive={index === currentIndex}
+          isActive={index === (currentIndex || 0)}
           number={index + 1}
           width={30}
           height={30}

@@ -72,6 +72,12 @@ export default function Page() {
   }, []);
 
   useEffect(() => {
+    if (!currentIndex) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, setCurrentIndex]);
+
+  useEffect(() => {
     const x: { answers: Jawaban; currentIndex: number; updatedAt: number } = JSON.parse(
       localStorage.getItem(storagekeyRef.current) || "{}"
     );
@@ -143,7 +149,7 @@ export default function Page() {
           )}
         </div>
       </CloseNavigation>
-      <NomerSoal currentIndex={currentIndex} />
+      <NomerSoal currentIndex={currentIndex ? currentIndex : 0} />
       <Soal
         setAnswer={setAnswer}
         contentActive={contentActive}

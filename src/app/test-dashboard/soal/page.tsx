@@ -2,8 +2,9 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import CreateContentButton from "./CreateContentButton";
-import CreateQuestionButton from "./CreateQuestionButton";
+import UploadImageButton from "./UploadImageForm";
 import CreateQuestionButton2 from "./CreateQuestionButton2";
+import { IImage } from "@/app/types/image";
 
 interface ISoal {
   domain_name: string;
@@ -33,12 +34,16 @@ const QuestionPage: React.FC = () => {
 
   const [questions, setQuestions] = useState<ISoal[]>([]);
   const [contents, setContents] = useState<IContent[]>([]);
+  const [images, setImages] = useState<IImage[]>([]);
+
   const [token, setToken] = useState("");
 
   const [domains, setDomains] = useState<Option[]>([]);
   const [subDomains, setSubDomains] = useState<Option[]>([]);
   const [kompetensis, setKompetensis] = useState<Option[]>([]);
   const [questionTypes, setQuestionTypes] = useState<Option[]>([]);
+
+  const host = process.env.NEXT_PUBLIC_API_BACKEND_HOST;
 
   useEffect(() => {
     const headers = { Authorization: `Bearer ${token}` };
@@ -103,6 +108,16 @@ const QuestionPage: React.FC = () => {
     })
       .then((res) => res.json())
       .then((data) => setContents(data.data ?? []));
+
+    // Fetch images
+    fetch(`/api/images?parent_id=${testId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        console.log(data);
+        setImages(data ?? []);
+      });
   }, [testId, token]);
 
   return (
@@ -111,6 +126,15 @@ const QuestionPage: React.FC = () => {
       <div
         style={{ padding: "20px 0px", display: "flex", justifyContent: "flex-start", gap: "10px" }}
       >
+        <UploadImageButton
+          testId={testId!}
+          onSuccess={() => {
+            // refresh konten setelah create
+            fetch(`/api/content/${testId}`, { headers: { Authorization: `Bearer ${token}` } })
+              .then((res) => res.json())
+              .then((data) => setContents(data.data ?? []));
+          }}
+        />
         <CreateContentButton
           testId={testId!}
           token={token}
@@ -220,6 +244,57 @@ const QuestionPage: React.FC = () => {
                     {c.id}
                   </td>
                   <td style={{ padding: "12px" }}>{truncate(c.data, 300)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+      {/* Tabel Images */}
+      <div
+        style={{
+          marginTop: "20px",
+          backgroundColor: "white",
+          borderRadius: "10px",
+          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+          overflow: "hidden",
+          padding: "16px",
+        }}
+      >
+        <h3 style={{ marginBottom: "15px" }}>Gambar</h3>
+        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+          <thead>
+            <tr style={{ backgroundColor: "#E6FFEE" }}>
+              <th style={{ padding: "12px", textAlign: "left" }}>Nama</th>
+              <th style={{ padding: "12px", textAlign: "left" }}>Url</th>
+            </tr>
+          </thead>
+          <tbody>
+            {images.length === 0 ? (
+              <tr>
+                <td colSpan={2} style={{ padding: "12px", textAlign: "center" }}>
+                  Belum ada gambar
+                </td>
+              </tr>
+            ) : (
+              images.map((img) => (
+                <tr key={img.id} style={{ borderBottom: "1px solid #f0f0f0" }}>
+                  <td style={{ padding: "12px" }}>{truncate(img.name, 50)}</td>
+                  <td
+                    style={{
+                      padding: "12px",
+                      cursor: "pointer",
+                      textDecoration: "underline",
+                      color: "blue",
+                    }}
+                    onClick={() => {
+                      navigator.clipboard.writeText(img.url);
+                    }}
+                  >
+                    <a href={host + img.url} target="_blank" rel="noopener noreferrer">
+                      {host ? `${host}${img.url}` : img.url}
+                    </a>
+                  </td>
                 </tr>
               ))
             )}

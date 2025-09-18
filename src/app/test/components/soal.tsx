@@ -166,7 +166,28 @@ export default function Soal({
       ),
     [activeItem, isPembahasan]
   );
-
+  const renderSkor = useMemo(
+    () =>
+      activeAnswer && activeAnswer.score !== undefined && isPembahasan ? (
+        <div
+          style={{
+            padding: "15px",
+            borderRadius: "10px",
+            background: "#f6f6f6",
+            display: "flex",
+            justifyContent: "space-between",
+          }}
+        >
+          <p>
+            <b>Skor</b>
+          </p>
+          {`${activeAnswer.score.toFixed(2)}`}
+        </div>
+      ) : (
+        <></>
+      ),
+    [activeAnswer, isPembahasan]
+  );
   const renderDuration = useMemo(
     () =>
       activeAnswer && activeAnswer.duration && isPembahasan ? (
@@ -257,6 +278,7 @@ export default function Soal({
           onSelectCouple={handleCoupleing}
         />
       )}
+      {renderSkor}
       {renderDuration}
       {renderPembahasan}
     </div>

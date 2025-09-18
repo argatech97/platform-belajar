@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 interface Option {
   id: string;
   name: string;
+  domain_id?: string; // ⬅️ tambahkan untuk subDomain
+  sub_domain_id?: string; // ⬅️ tambahkan untuk kompetensi
 }
 
 interface Props {
@@ -44,6 +46,25 @@ const CreateQuestionButton2: React.FC<Props> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
+
+    if (name === "domain_id") {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+        sub_domain_id: "", // reset subDomain
+        kompetensi_id: "", // reset kompetensi
+      }));
+      return;
+    }
+
+    if (name === "sub_domain_id") {
+      setForm((prev) => ({
+        ...prev,
+        [name]: value,
+        kompetensi_id: "", // reset kompetensi
+      }));
+      return;
+    }
 
     if (name === "question_type_id") {
       // cari nama question type dari props
@@ -171,6 +192,18 @@ const CreateQuestionButton2: React.FC<Props> = ({
     }
   };
 
+  // ⬅️ filter subDomain tergantung domain_id
+  const filteredSubDomains = useMemo(() => {
+    if (!form.domain_id) return [];
+    return subDomains.filter((sd) => sd.domain_id === form.domain_id);
+  }, [form.domain_id, subDomains]);
+
+  // ⬅️ filter kompetensi tergantung sub_domain_id
+  const filteredKompetensis = useMemo(() => {
+    if (!form.sub_domain_id) return [];
+    return kompetensis.filter((k) => k.sub_domain_id === form.sub_domain_id);
+  }, [form.sub_domain_id, kompetensis]);
+
   return (
     <>
       <button
@@ -293,7 +326,7 @@ const CreateQuestionButton2: React.FC<Props> = ({
                   required
                 >
                   <option value="">Pilih Sub Domain</option>
-                  {subDomains.map((sd) => (
+                  {filteredSubDomains.map((sd) => (
                     <option key={sd.id} value={sd.id}>
                       {sd.name}
                     </option>
@@ -316,7 +349,7 @@ const CreateQuestionButton2: React.FC<Props> = ({
                   required
                 >
                   <option value="">Pilih Kompetensi</option>
-                  {kompetensis.map((k) => (
+                  {filteredKompetensis.map((k) => (
                     <option key={k.id} value={k.id}>
                       {k.name}
                     </option>

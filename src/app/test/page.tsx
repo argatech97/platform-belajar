@@ -7,7 +7,6 @@ import CloseNavigation from "@/components/CloseNavigation";
 import Countdown from "@/components/Countdown";
 import ConfirmationButton from "../components/ConfirmationButton";
 import Loading from "@/components/Loading";
-import { useConfirmExit } from "../hooks/useConfirmExit";
 import { useSecurePage } from "../hooks/useSecurePage";
 import BottomNumberNav from "./components/bottomNumberNav";
 import BottomNavigation from "./components/bottomNavigation";
@@ -17,15 +16,16 @@ import { useTestData } from "./hooks/useTestData";
 import { useTimer } from "./hooks/useTimer";
 import { useAnswers } from "./hooks/useAnswers";
 import { Jawaban } from "../skor/types";
+import { useConfirmExit } from "../hooks/useConfirmExit";
 
 export default function Page() {
+  const params = useSearchParams();
+
   // useSecurePage({ blockCopy: true, blockScreenshot: true });
-  useConfirmExit();
 
   const [isStopTimer, setIsStopTimer] = useState(false);
 
   const POINT_PER_QUESTION = useMemo(() => 5, []);
-  const params = useSearchParams();
   const storagekeyRef = useRef<string>(params.get("name") || "test");
 
   const {
@@ -94,6 +94,8 @@ export default function Page() {
       alert((e as Error).message);
     }
   }, [answers, currentIndex]);
+
+  useConfirmExit();
 
   return isLoading ? (
     <Loading />

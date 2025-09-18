@@ -144,7 +144,8 @@ export function useAnswers(
           params.get("testType") || ""
         );
         removeLocalStorage();
-        router.push(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
+        localStorage.setItem(`${params.get("navbarTitle")}-is-done`, JSON.stringify(true));
+        router.replace(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
       } catch (error) {
         alert((error as Error).message);
       }

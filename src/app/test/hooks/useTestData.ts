@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { mapEntitiesToQuestions } from "@/helper/mapSoalFromDB";
 import { IQuestionForm } from "@/app/types/answerForm";
@@ -85,7 +85,21 @@ export function useTestData(isPembahasan?: boolean) {
     [activeItem, content]
   );
 
+  const handleRemoveLSAndClose = useCallback((storagekeyRef: string) => {
+    localStorage.removeItem("soal-aktif-platform-belajar");
+    localStorage.removeItem("content-aktif-platform-belajar");
+    localStorage.removeItem("testResult");
+    localStorage.removeItem("percentageByDomain");
+    localStorage.removeItem("percentageByKompetensi");
+    localStorage.removeItem("percentageBySubDomain");
+    localStorage.removeItem("percentageByType");
+    localStorage.removeItem("timeLeft");
+    localStorage.removeItem(storagekeyRef);
+    window.close();
+  }, []);
+
   return {
+    handleRemoveLSAndClose,
     testData,
     contentActive,
     isLoading,

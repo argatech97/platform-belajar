@@ -21,6 +21,16 @@ export default function PreparationPage() {
   // Handler untuk masuk fullscreen + navigasi
   const handleStart = async () => {
     try {
+      const isDone = localStorage.getItem(`${searchParams.get("name")}-is-done`);
+
+      if (isDone) {
+        alert(
+          "Kamu sudah pernah mengerjakan tes ini, silahkan cek halaman capaian kamu. Tab ini akan ditutup"
+        );
+        window.close();
+        return;
+      }
+
       if (document.documentElement.requestFullscreen) {
         await document.documentElement.requestFullscreen();
       } else if ((document.documentElement as any).webkitRequestFullscreen) {
@@ -76,6 +86,36 @@ export default function PreparationPage() {
       <p style={{ fontSize: "1.4rem", marginBottom: "50px" }}>
         ⏳ Durasi: <b>{Number(durationSeconds) / 60} menit</b>
       </p>
+
+      <button
+        onClick={() => {
+          window.close();
+        }}
+        style={{
+          marginBottom: "15px",
+          padding: "18px 45px",
+          fontSize: "1.3rem",
+          fontWeight: "bold",
+          borderRadius: "35px",
+          border: "none",
+          background: "linear-gradient(90deg, #2fd9ffff, #dd24d1ff, #24dc80ff, #514a9d)",
+          backgroundSize: "300% 300%",
+          color: "#fff",
+          cursor: "pointer",
+          boxShadow: "0px 8px 25px rgba(0,0,0,0.3)",
+          transition: "transform 0.3s ease, box-shadow 0.3s ease",
+        }}
+        onMouseEnter={(e) => {
+          (e.target as HTMLButtonElement).style.transform = "scale(1.08)";
+          (e.target as HTMLButtonElement).style.boxShadow = "0px 12px 35px rgba(0,0,0,0.4)";
+        }}
+        onMouseLeave={(e) => {
+          (e.target as HTMLButtonElement).style.transform = "scale(1)";
+          (e.target as HTMLButtonElement).style.boxShadow = "0px 8px 25px rgba(0,0,0,0.3)";
+        }}
+      >
+        Kembali
+      </button>
 
       <button
         onClick={handleStart}

@@ -78,6 +78,13 @@ export default function Page() {
               title: el.name,
               description: `⏰ ${el.durasi_seconds / 60} Menit; 💬 ${el.jumlah_soal} Soal;  📅 ${formatDate(el.live_at)}`,
               action: () => {
+                if (localStorage.getItem(`${el.name}-is-done`)) {
+                  alert(
+                    "Tes ini sudah pernah kamu kerjakan, kamu akan dialihkan ke halaman capaian tes yang pernah kamu kerjakan"
+                  );
+                  router.replace("/capaian");
+                  return;
+                }
                 window.open(
                   `/preparation?total_question=${el.jumlah_soal}&name=${el.name}&navbarTitle=${el.name}&id=${el.id}&duration=${el.durasi_seconds}&testType=Try Out&testTypeId=${testTypeId}`,
                   "_blank"

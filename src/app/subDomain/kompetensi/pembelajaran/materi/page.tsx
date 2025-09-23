@@ -146,6 +146,7 @@ export default function Page() {
           </p>
         </div>
         <div
+          style={{ paddingLeft: "10px" }}
           dangerouslySetInnerHTML={{
             __html: items.find((el) => el.order_number === page)?.content || "",
           }}

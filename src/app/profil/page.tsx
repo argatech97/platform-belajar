@@ -4,8 +4,10 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Container from "@/components/Container";
 import BottomNavigation from "../components/BottomNavigation";
+import { useGetMyPointByUser } from "@/app/hooks/usePointApi";
 
 interface IUserPlatform {
+  id: string; // tambahin id, biar bisa dipakai ke API point
   nama_lengkap: string;
   nama_sekolah: string;
   tingkat: number;
@@ -17,6 +19,12 @@ export default function Page() {
   const router = useRouter();
   const [user, setUser] = useState<IUserPlatform | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
+  const [point, setPoint] = useState<number | null>(null);
+
+  // baseUrl & token buat hook
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token-platform-belajar") || "" : "";
+  const getMyPointByUser = useGetMyPointByUser({ baseUrl: "/api/point", token });
 
   const fetchSaved = useCallback(async () => {
     try {
@@ -24,21 +32,29 @@ export default function Page() {
       const token = localStorage.getItem("token-platform-belajar");
       if (!token) throw new Error("Token not found");
       const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
+
       const res = await fetch(`/api/auth/profile/${user.id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      setLoading(true);
-      if (!res.ok) throw new Error("Failed to fetch saved questions");
+      if (!res.ok) throw new Error("Failed to fetch profile");
       const data: IUserPlatform = await res.json();
       setUser(data);
+      console.log(data, "jauh");
+      // ambil poin user
+      try {
+        const pointRes = await getMyPointByUser(data.id);
+        setPoint(pointRes.data.point ?? 0);
+      } catch (err) {
+        console.error("Failed to fetch point:", err);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [getMyPointByUser]);
 
   useEffect(() => {
     const data = localStorage.getItem("token-platform-belajar");
@@ -46,11 +62,7 @@ export default function Page() {
       router.replace("/auth");
       return;
     }
-    try {
-      fetchSaved();
-    } catch {
-      router.replace("/auth");
-    }
+    fetchSaved();
   }, [fetchSaved, router]);
 
   const handleLogout = () => {
@@ -135,16 +147,16 @@ export default function Page() {
             >
               {user.nama_lengkap}
             </h1>
-            {/* <p style={{ fontSize: "1rem", color: "#6b7280" }}>{user.role_alias}</p> */}
           </div>
 
-          {/* Info (rapih tabel style) */}
+          {/* Info */}
           <div style={{ marginBottom: "24px" }}>
             {[
               { label: "No Identitas", value: user.no_identitas },
               { label: "Sekolah", value: user.nama_sekolah },
               { label: "Kelas", value: user.tingkat },
               { label: "Role", value: user.nama_role },
+              { label: "Poin", value: point !== null ? `${point} 🪙` : "Loading..." },
             ].map((item, idx) => (
               <div
                 key={idx}
@@ -177,18 +189,11 @@ export default function Page() {
               cursor: "pointer",
               transition: "background 0.2s ease",
             }}
-            onMouseOver={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = "#69CA87";
-            }}
-            onMouseOut={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.background = "#69CA87";
-            }}
           >
             Logout
           </button>
         </div>
 
-        {/* Animasi Keyframes */}
         <style>
           {`
           @keyframes fadeIn {

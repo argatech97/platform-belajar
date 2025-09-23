@@ -149,6 +149,11 @@ export default function Page() {
                   .catch((err) => {
                     if (err.isDone) {
                       alert(err.error);
+                      setTimeLeft(
+                        localStorage.getItem("timeLeft")
+                          ? JSON.parse(localStorage.getItem("timeLeft") || "0")
+                          : timeLeft
+                      );
                       window.close();
                       return;
                     }
@@ -178,6 +183,11 @@ export default function Page() {
                   .catch((err) => {
                     if (err.isDone) {
                       alert(err.error);
+                      setTimeLeft(
+                        localStorage.getItem("timeLeft")
+                          ? JSON.parse(localStorage.getItem("timeLeft") || "0")
+                          : timeLeft
+                      );
                       window.close();
                       return;
                     }

@@ -101,7 +101,7 @@ export function useAnswers(
         const percentageBySubDomain = computeAndSavePercentageBySubDomain(answers, testData);
         const percentageByKompetensi = computeAndSavePercentageByKompetensi(answers, testData);
         const currentUser = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
-        const request = await fetch(`/api/test/capaian/creat`, {
+        const request = await fetch(`/api/test/capaian/create`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -124,9 +124,21 @@ export function useAnswers(
             parent_id,
           }),
         });
+        let res = null;
+        try {
+          // cek kalau response bisa diparse json
+          const contentType = request.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            res = await request.json();
+          } else {
+            res = null;
+          }
+        } catch (err) {
+          res = null; // kalau parsing gagal, biarkan res null
+        }
+
+        if (res && res.isDone) throw res;
         if (!request.ok) throw request.statusText;
-        const res = await request.json();
-        if (res.isDone) throw res;
       } catch (error) {
         throw error;
       }
@@ -150,14 +162,14 @@ export function useAnswers(
         user_id: user.id,
         is_earned: true,
         relationd_id: test_id,
-        activity_name: `Menyelesaikan test, ${test_name}`,
+        activity_name: `Menyelesaikan ${params.get("testType")}, ${test_name}`,
       };
       const token = (localStorage && localStorage.getItem("token-platform-belajar")) || "";
 
       await earn(x, token);
       setIsDone(true);
     },
-    [earn]
+    [earn, params]
   );
 
   const handleNext = useCallback(() => {

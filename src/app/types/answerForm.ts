@@ -11,6 +11,7 @@ export interface ISoal<X, Y> {
   subDomainId: string;
   kompetensi: string;
   kompetensiId: string;
+  testId: string;
   pembahasan?: string;
 }
 

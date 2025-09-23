@@ -27,6 +27,7 @@ export async function mapEntitiesToQuestions(
       case "multiple-choice": {
         const soal: IMultipleChoice = {
           id: entity.id,
+          testId: entity.test_id,
           question: entity.question, // ← sesuaikan field mana yang menyimpan pertanyaan sebenarnya
           contentId: entity.content_id,
           type,
@@ -47,6 +48,7 @@ export async function mapEntitiesToQuestions(
       case "multiple-select": {
         const soal: IMultipleSelect = {
           id: entity.id,
+          testId: entity.test_id,
           question: entity.question,
           contentId: entity.content_id,
           type,
@@ -67,6 +69,7 @@ export async function mapEntitiesToQuestions(
       case "coupleing": {
         const soal: ICoupleing = {
           id: entity.id,
+          testId: entity.test_id,
           question: entity.question,
           contentId: entity.content_id,
           type,
@@ -88,6 +91,7 @@ export async function mapEntitiesToQuestions(
       case "short-answer": {
         const soal: IShortAnswer = {
           id: entity.id,
+          testId: entity.test_id,
           question: entity.question,
           contentId: entity.content_id,
           type,
@@ -110,6 +114,7 @@ export async function mapEntitiesToQuestions(
       case "questioner": {
         const soal: IQuestioner = {
           id: entity.id,
+          testId: entity.test_id,
           question: entity.question,
           contentId: entity.content_id,
           type,

@@ -5,6 +5,8 @@ import Container from "@/components/Container";
 import { useRouter, useSearchParams } from "next/navigation";
 import CloseNavigation from "@/components/CloseNavigation";
 import { postRequest } from "@/helper/api";
+import { CreatePointHistoryDto, useEarnPoints } from "@/app/hooks/usePointApi";
+import FullscreenPointModal from "@/components/PointModal";
 
 type MateriContent = {
   id: string;
@@ -13,15 +15,21 @@ type MateriContent = {
 };
 
 export default function Page() {
+  const earn = useEarnPoints({
+    baseUrl: "/api/point",
+  });
   const params = useSearchParams();
   const [page, setPage] = useState(1);
   const [items, setItems] = useState<MateriContent[]>([]);
+  const [isDone, setIsDone] = useState<boolean>(false);
   const router = useRouter();
+  const materiName = params.get("navbarTitle");
 
-  const submitDone = useCallback(() => {
+  const submitDone = useCallback(async () => {
     const token = localStorage.getItem("token-platform-belajar");
     const materi_id = params.get("id");
     const kompetensi_id = params.get("parent_id");
+    const point = params.get("point");
     const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
     postRequest(
       "/learning/materi/done",
@@ -33,10 +41,34 @@ export default function Page() {
       {
         Authorization: `Bearer ${token}`,
       }
-    ).finally(() => {
-      router.back();
-    });
-  }, [params, router]);
+    )
+      .then(() => {
+        if (point) {
+          const x: CreatePointHistoryDto = {
+            point: Number(point),
+            user_id: user.id,
+            is_earned: true,
+            relationd_id: materi_id,
+            activity_name: `Menyelesaikan materi: ${materiName}`,
+          };
+          const token = localStorage.getItem("token-platform-belajar") || "";
+          return earn(x, token)
+            .then(() => {
+              setIsDone(true);
+              return;
+            })
+            .catch((err) => {
+              console.log(err);
+              return;
+            });
+        }
+        return;
+      })
+      .catch((err) => {
+        alert(err.message);
+        router.back();
+      });
+  }, [earn, materiName, params, router]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +102,20 @@ export default function Page() {
     };
 
     fetchData();
-  }, [params]);
+  }, [params, router]);
+
+  if (isDone)
+    return (
+      <Container>
+        <FullscreenPointModal
+          visible={isDone}
+          actionButtonLabel={"Tutup"}
+          actionButton={function (): void {
+            router.back();
+          }}
+        ></FullscreenPointModal>
+      </Container>
+    );
 
   return (
     <Container>

@@ -17,6 +17,7 @@ import { useTimer } from "./hooks/useTimer";
 import { useAnswers } from "./hooks/useAnswers";
 import { Jawaban } from "../skor/types";
 import { useConfirmExit } from "../hooks/useConfirmExit";
+import FullscreenPointModal from "@/components/PointModal";
 
 export default function Page() {
   const params = useSearchParams();
@@ -37,7 +38,10 @@ export default function Page() {
     setCurrentIndex,
     setIsLoading,
   } = useTestData();
-  const { timeLeft } = useTimer(Number(params.get("duration") || 0), params.get("name") || "test");
+  const { timeLeft, setTimeLeft } = useTimer(
+    Number(params.get("duration") || 0),
+    params.get("name") || "test"
+  );
 
   const {
     answers,
@@ -50,6 +54,8 @@ export default function Page() {
     submitAnswers,
     setAnswer,
     setAnswers,
+    isDone,
+    handleNext,
   } = useAnswers(activeItem, testData, POINT_PER_QUESTION);
 
   useEffect(() => {
@@ -97,6 +103,17 @@ export default function Page() {
 
   useConfirmExit();
 
+  if (isDone)
+    return (
+      <FullscreenPointModal
+        visible={isDone}
+        actionButtonLabel={"Lihat Skor"}
+        actionButton={function (): void {
+          handleNext();
+        }}
+      />
+    );
+
   return isLoading ? (
     <Loading />
   ) : (
@@ -117,6 +134,7 @@ export default function Page() {
               textOverflow: "ellipsis",
               color: "black",
               fontWeight: "bold",
+              maxWidth: "200px",
             }}
           >
             {params.get("navbarTitle") || ""}
@@ -127,9 +145,23 @@ export default function Page() {
               initialTime={timeLeft}
               onEnd={async (x: number) => {
                 setIsLoading(true);
-                submitAnswers(x).finally(() => {
-                  setIsLoading(false);
-                });
+                submitAnswers(x)
+                  .catch((err) => {
+                    if (err.isDone) {
+                      alert(err.error);
+                      window.close();
+                      return;
+                    }
+                    alert(err);
+                    setTimeLeft(
+                      localStorage.getItem("timeLeft")
+                        ? JSON.parse(localStorage.getItem("timeLeft") || "0")
+                        : timeLeft
+                    );
+                  })
+                  .finally(() => {
+                    setIsLoading(false);
+                  });
               }}
             />
           )}
@@ -138,13 +170,28 @@ export default function Page() {
               confirmMessage="Apakah kamu yakin ingin mengakhiri tes ini ?"
               onConfirm={() => {
                 setIsLoading(true);
-                return submitAnswers(
+                submitAnswers(
                   localStorage.getItem("timeLeft")
                     ? JSON.parse(localStorage.getItem("timeLeft") || "0")
                     : timeLeft
-                ).finally(() => {
-                  setIsLoading(false);
-                });
+                )
+                  .catch((err) => {
+                    if (err.isDone) {
+                      alert(err.error);
+                      window.close();
+                      return;
+                    }
+                    alert(err);
+                    setTimeLeft(
+                      localStorage.getItem("timeLeft")
+                        ? JSON.parse(localStorage.getItem("timeLeft") || "0")
+                        : timeLeft
+                    );
+                  })
+                  .finally(() => {
+                    setIsLoading(false);
+                  });
+                return Promise.resolve();
               }}
               label="Akhiri!"
             />

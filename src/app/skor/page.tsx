@@ -225,7 +225,7 @@ export default function PageGokilInline() {
         setTestResult(mappedTestResult);
         localStorage.setItem("testResult", JSON.stringify(mappedTestResult));
         localStorage.setItem(
-          data.test_name,
+          data.test_id,
           JSON.stringify({
             answers: data.jawaban,
             currentIndex: 0,
@@ -437,8 +437,20 @@ export default function PageGokilInline() {
     <Container>
       <CloseNavigation onClick={() => handleClose()}>
         <div style={styles.titleRow}>
-          <div style={styles.title}>📊 Hasil Tes</div>
-          <div style={{ ...styles.subtitle, marginLeft: 8 }}>{testResult?.testName}</div>
+          <div style={styles.title}>📊</div>
+          <div
+            style={{
+              ...styles.subtitle,
+              marginLeft: 8,
+              maxWidth: "250px", // kasih batas biar ellipsis jalan
+              whiteSpace: "nowrap",
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              paddingTop: "3px",
+            }}
+          >
+            {testResult?.testName}
+          </div>
         </div>
       </CloseNavigation>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useMemo, useRef } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import Container from "@/components/Container";
 import { useSearchParams } from "next/navigation";
 import Loading from "@/components/Loading";
@@ -12,14 +12,17 @@ import { useTestData } from "../hooks/useTestData";
 import { useAnswers } from "../hooks/useAnswers";
 import BackNavigation from "@/components/BackNavigation";
 import { Jawaban } from "@/app/skor/types";
+import SaveButton from "../components/saveButton";
 
 export default function Page() {
   const POINT_PER_QUESTION = useMemo(() => 5, []);
   const params = useSearchParams();
-  const storagekeyRef = useRef<string>(params.get("navbarTitle") || "test");
+  const storagekeyRef = useRef<string>(params.get("id") || "test");
 
   const { testData, contentActive, isLoading, currentIndex, activeItem, setCurrentIndex } =
     useTestData(true);
+
+  const hideSaveButton = params.get("hide-save");
 
   const {
     activeAnswer,
@@ -33,11 +36,9 @@ export default function Page() {
   } = useAnswers(activeItem, testData, POINT_PER_QUESTION);
 
   useEffect(() => {
-    console.log(storagekeyRef.current);
     const x: { answers: Jawaban; currentIndex: number; updatedAt: number } = JSON.parse(
       localStorage.getItem(storagekeyRef.current) || "{}"
     );
-    console.log(x);
     setAnswers(x.answers);
     setCurrentIndex(0);
   }, [setAnswers, setCurrentIndex]);
@@ -47,7 +48,12 @@ export default function Page() {
   ) : (
     <Container>
       <BackNavigation label={params.get("navbarTitle") || ""} />
-      <NomerSoal currentIndex={currentIndex} />
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <NomerSoal currentIndex={currentIndex} />
+        {activeItem && !hideSaveButton && (
+          <SaveButton pembahasanId={storagekeyRef.current} questionId={activeItem.id} />
+        )}
+      </div>
       <Soal
         isPembahasan
         setAnswer={setAnswer}

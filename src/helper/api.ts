@@ -12,13 +12,11 @@ export const postRequest = async (endpoint: string, data: any, headers?: any) =>
   });
 
   const json = await res.json().catch(() => ({}));
-
   if (!res.ok && res.status === 401) {
     window.location.href = "/auth";
     return json;
   } else if (!res.ok) {
-    throw new Error(json.error || "Request gagal!");
-    return json;
+    throw new Error(json.error || json.message || "Request gagal!");
   }
 
   return json;

@@ -7,6 +7,8 @@ import Tab from "@/components/Tab";
 import { IHasilCapaian } from "../types/hasilCapain";
 import CapaianCardList from "../components/CapaianCardList";
 import Loading from "@/components/Loading";
+import BottomNavigation from "../components/BottomNavigation";
+import EmptyResult from "@/components/emptyResult";
 
 export default function Page() {
   const navbarTitle = useSearchParams().get("navbarTitle");
@@ -88,13 +90,34 @@ export default function Page() {
     "linear-gradient(135deg,#f97316,#f43f5e)",
   ];
 
+  if (data.length === 0) {
+    return (
+      <Container>
+        {selectedType && (
+          <Tab
+            initialActiveTab={selectedType}
+            tabList={testTypes.map((type) => ({ label: type.name, value: type.id }))}
+            tabOnChange={function (value: string): void {
+              setSelectedType(value);
+            }}
+          ></Tab>
+        )}
+        <EmptyResult
+          message={"Belum Ada Capain"}
+          description={"Kerjakan try out atau quiz untuk membuat capaian"}
+        />
+        <BottomNavigation />
+      </Container>
+    );
+  }
+
   return (
     <Container>
       {loading ? (
         <Loading />
       ) : (
         <>
-          <BackNavigation label={navbarTitle || ""} />
+          {/* <BackNavigation label={navbarTitle || ""} /> */}
           {selectedType && (
             <Tab
               initialActiveTab={selectedType}
@@ -104,7 +127,7 @@ export default function Page() {
               }}
             ></Tab>
           )}
-          <div style={{ padding: "0px 10px" }}>
+          <div style={{ height: "100%", padding: "0px 10px", overflow: "scroll" }}>
             <CapaianCardList
               modeCapaian
               index="test_name"
@@ -119,6 +142,7 @@ export default function Page() {
               }}
             />
           </div>
+          <BottomNavigation />
         </>
       )}
     </Container>

@@ -8,6 +8,7 @@ import Loading from "@/components/Loading";
 import { Test } from "../types/reference";
 import Card from "@/components/Card";
 import { label } from "framer-motion/client";
+import BottomNavigation from "../components/BottomNavigation";
 
 export default function Page() {
   const navbarTitle = useSearchParams().get("navbarTitle");
@@ -94,7 +95,13 @@ export default function Page() {
             ></Tab>
           )}
           <div
-            style={{ display: "flex", flexDirection: "column", padding: "0px 10px", gap: "10px" }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              padding: "0px 10px",
+              gap: "10px",
+              marginBottom: "10px",
+            }}
           >
             {data &&
               data.map((el, index) => (
@@ -110,6 +117,7 @@ export default function Page() {
                 />
               ))}
           </div>
+          <BottomNavigation />
         </>
       )}
     </Container>

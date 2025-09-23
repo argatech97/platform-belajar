@@ -14,6 +14,9 @@ export default function PreparationPage() {
   const durationSeconds = searchParams.get("duration") || "0";
   const testType = searchParams.get("testType") || "";
   const testTypeId = searchParams.get("testTypeId") || "";
+  const parentId = searchParams.get("parentId") || "";
+  const point = searchParams.get("point") || "";
+
   const id = searchParams.get("id") || "";
 
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -47,7 +50,7 @@ export default function PreparationPage() {
     router.push(
       `/test?name=${testName}&navbarTitle=${testName}&id=${id}&duration=${Number(
         durationSeconds
-      )}&testType=${testType}&testTypeId=${testTypeId}`
+      )}&testType=${testType}&testTypeId=${testTypeId}&parentId=${parentId}&point=${point}`
     );
   };
 

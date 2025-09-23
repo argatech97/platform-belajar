@@ -1,7 +1,7 @@
 import React from "react";
 import Card from "@/components/Card";
 
-const Quiz = React.memo(function Quiz({
+const PreQuiz = React.memo(function Quiz({
   items,
   onClickItem,
 }: {
@@ -23,7 +23,7 @@ const Quiz = React.memo(function Quiz({
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "15px", padding: "15px" }}>
       <p>
-        Quiz adalah post test yang menguji kompetensimu setelah membaca dan menyelesaikan semua
+        Pre quiz adalah pre test yang menguji kompetensimu sebelum membaca dan menyelesaikan semua
         materi
       </p>
       {items.map((item, index) => (
@@ -47,4 +47,4 @@ const Quiz = React.memo(function Quiz({
   );
 });
 
-export default Quiz;
+export default PreQuiz;

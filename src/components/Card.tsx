@@ -70,7 +70,7 @@ const Card = React.memo(function Card({
           </div>
         )}
       </div>
-      {suffix && <div>{suffix}</div>}
+      {suffix && suffix}
     </div>
   );
 });

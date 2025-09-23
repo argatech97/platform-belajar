@@ -16,6 +16,7 @@ interface ExamForm {
   test_type_id: string;
   jumlah_soal: number;
   durasi_seconds: number;
+  point: number;
 }
 
 interface Exam extends ExamForm {
@@ -33,6 +34,7 @@ const ExamPage: React.FC = () => {
     test_type_id: "",
     jumlah_soal: 0,
     durasi_seconds: 0,
+    point: 0,
   });
   const [loading, setLoading] = useState(false);
   const [exams, setExams] = useState<Exam[]>([]);
@@ -99,6 +101,7 @@ const ExamPage: React.FC = () => {
           test_type_id: selectedType,
           jumlah_soal: Number(form.jumlah_soal),
           durasi_seconds: Number(form.durasi_seconds),
+          point: Number(form.point), // ✅ tambahkan ini
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -110,6 +113,7 @@ const ExamPage: React.FC = () => {
         test_type_id: "",
         jumlah_soal: 0,
         durasi_seconds: 0,
+        point: 0,
       });
       setShowModal(false);
     } finally {
@@ -227,9 +231,10 @@ const ExamPage: React.FC = () => {
           boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
           overflow: "hidden",
           padding: "16px",
+          overflowX: "auto", // ✅ tambahkan ini
         }}
       >
-        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <table style={{ minWidth: "900px", borderCollapse: "collapse" }}>
           <thead>
             <tr style={{ backgroundColor: "#E6FFEE" }}>
               <th style={{ textAlign: "left", padding: "14px", fontWeight: 600 }}>Nama</th>
@@ -241,6 +246,8 @@ const ExamPage: React.FC = () => {
               <th style={{ textAlign: "left", padding: "14px", fontWeight: 600 }}>
                 Durasi (detik)
               </th>
+              <th style={{ textAlign: "left", padding: "14px", fontWeight: 600 }}>Point</th>
+
               <th style={{ textAlign: "center", padding: "14px", fontWeight: 600 }}>Aksi</th>
             </tr>
           </thead>
@@ -258,6 +265,7 @@ const ExamPage: React.FC = () => {
                 <td style={{ padding: "14px" }}>{exam.test_type_id}</td>
                 <td style={{ padding: "14px" }}>{exam.jumlah_soal}</td>
                 <td style={{ padding: "14px" }}>{exam.durasi_seconds}</td>
+                <td style={{ padding: "14px" }}>{exam.point}</td>
                 <td style={{ padding: "14px", textAlign: "center" }}>
                   <button
                     style={{
@@ -373,6 +381,18 @@ const ExamPage: React.FC = () => {
                   type="number"
                   name="durasi_seconds"
                   value={form.durasi_seconds}
+                  onChange={handleChange}
+                  required
+                  style={styles.input}
+                />
+              </div>
+
+              <div>
+                <label style={styles.label}>Point (wajib)</label>
+                <input
+                  type="number"
+                  name="point"
+                  value={form.point}
                   onChange={handleChange}
                   required
                   style={styles.input}

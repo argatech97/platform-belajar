@@ -49,7 +49,7 @@ export default function Page() {
             user_id: user.id,
             is_earned: true,
             relationd_id: materi_id,
-            activity_name: `Menyelesaikan materi: ${materiName}`,
+            activity_name: `Menyelesaikan materi, ${materiName}`,
           };
           const token = localStorage.getItem("token-platform-belajar") || "";
           return earn(x, token)

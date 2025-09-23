@@ -41,7 +41,6 @@ export default function Page() {
       if (!res.ok) throw new Error("Failed to fetch profile");
       const data: IUserPlatform = await res.json();
       setUser(data);
-      console.log(data, "jauh");
       // ambil poin user
       try {
         const pointRes = await getMyPointByUser(data.id);

@@ -175,7 +175,9 @@ export function useAnswers(
   const handleNext = useCallback(() => {
     removeLocalStorage();
     localStorage.setItem(`${params.get("id")}-is-done`, JSON.stringify(true));
-    router.replace(`/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}`);
+    router.replace(
+      `/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}${params.get("testType") === "Pre Quiz" ? `&testType=Pre Quiz` : ""}`
+    );
   }, [params, removeLocalStorage, router]);
 
   const submitAnswers = useCallback(

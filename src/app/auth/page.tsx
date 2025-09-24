@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { data, Role } from "./data";
 import { LoginForm } from "./components/login";
 import { RegisterForm } from "./components/register";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Loading from "@/components/Loading";
 
 export default function Page() {
@@ -19,6 +19,12 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const params = useSearchParams();
+
+  useEffect(() => {
+    const x = localStorage.getItem("token-platform-belajar");
+    if (x) router.replace("/");
+  }, [router]);
 
   useEffect(() => {
     const checkScreen = () => setIsMobile(window.innerWidth < 768);
@@ -29,12 +35,15 @@ export default function Page() {
 
   const handleLoginSuccess = useCallback(
     (user: any) => {
-      const previousRoute = localStorage.getItem("platform-belajar-route-before");
-      if (previousRoute) window.location.href = previousRoute;
+      const previousRoute = params.get("isNext");
+      if (previousRoute) {
+        window.location.href = previousRoute;
+        return;
+      }
       if (!previousRoute) router.push("/");
       // redirect ke halaman dashboard misalnya
     },
-    [router]
+    [params, router]
   );
 
   return loading ? (

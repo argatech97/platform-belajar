@@ -52,7 +52,8 @@ export default function Page() {
         },
       });
       if (!res.ok && res.status === 401) {
-        router.replace("/auth");
+        const currentUrl = encodeURIComponent(window.location.href);
+        router.replace(`/auth?isNext=${currentUrl}`);
         return;
       }
       const data = await res.json();
@@ -75,7 +76,8 @@ export default function Page() {
         },
       });
       if (!res.ok && res.status === 401) {
-        router.replace("/auth");
+        const currentUrl = encodeURIComponent(window.location.href);
+        router.replace(`/auth?isNext=${currentUrl}`);
         return;
       }
       const data = await res.json();
@@ -112,7 +114,8 @@ export default function Page() {
           (!prequizRes.ok && prequizRes.status === 401) ||
           (!quizRes.ok && quizRes.status === 401)
         ) {
-          router.replace("/auth");
+          const currentUrl = encodeURIComponent(window.location.href);
+          router.replace(`/auth?isNext=${currentUrl}`);
           return;
         }
         const data1 = await prequizRes.json();
@@ -141,7 +144,8 @@ export default function Page() {
         },
       });
       if (!res.ok && res.status === 401) {
-        router.replace("/auth");
+        const currentUrl = encodeURIComponent(window.location.href);
+        router.replace(`/auth?isNext=${currentUrl}`);
         return;
       }
       const data = await res.json();
@@ -164,7 +168,8 @@ export default function Page() {
         },
       });
       if (!res.ok && res.status === 401) {
-        router.replace("/auth");
+        const currentUrl = encodeURIComponent(window.location.href);
+        router.replace(`/auth?isNext=${currentUrl}`);
         return;
       }
       const data = await res.json();

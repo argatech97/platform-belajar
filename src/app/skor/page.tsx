@@ -332,6 +332,7 @@ export default function PageGokilInline() {
 
   const goToPembahasan = useCallback(
     (res: IQuestionForm[]) => {
+      if (params.get("testType") === "Pre Quiz") return;
       localStorage.setItem("pembahasan-aktif-platform-belajar", JSON.stringify(res));
       router.push(`/test/pembahasan?navbarTitle=${params.get("name")}&id=${params.get("id")}`);
     },
@@ -495,13 +496,17 @@ export default function PageGokilInline() {
               📋 Salin Skor
             </button>
 
-            <button
-              onClick={openRanking}
-              aria-label="Lihat ranking"
-              style={{ ...styles.buttonPrimary, ...styles.btnGradient2 }}
-            >
-              🚀 Lihat Ranking
-            </button>
+            {params.get("testType") !== "Pre Quiz" ? (
+              <button
+                onClick={openRanking}
+                aria-label="Lihat ranking"
+                style={{ ...styles.buttonPrimary, ...styles.btnGradient2 }}
+              >
+                🚀 Lihat Ranking
+              </button>
+            ) : (
+              <></>
+            )}
 
             <button
               onClick={() => window.print()}
@@ -603,19 +608,23 @@ export default function PageGokilInline() {
         </section>
       </main>
 
-      <div style={styles.floatingBtnWrapper}>
-        <button
-          onClick={openPembahasan}
-          style={{
-            ...styles.floatingBtn,
-            ...styles.buttonPrimary,
-            ...styles.btnGradient1,
-          }}
-          aria-label="pembahasan"
-        >
-          🚀 Lihat Pembahasan !
-        </button>
-      </div>
+      {params.get("testType") !== "Pre Quiz" ? (
+        <div style={styles.floatingBtnWrapper}>
+          <button
+            onClick={openPembahasan}
+            style={{
+              ...styles.floatingBtn,
+              ...styles.buttonPrimary,
+              ...styles.btnGradient1,
+            }}
+            aria-label="pembahasan"
+          >
+            🚀 Lihat Pembahasan !
+          </button>
+        </div>
+      ) : (
+        <></>
+      )}
 
       <style>{`
         @media print {

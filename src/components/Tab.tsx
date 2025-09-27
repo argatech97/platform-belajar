@@ -23,7 +23,15 @@ export default function Tab({ primaryColor, tabList, tabOnChange, initialActiveT
   );
 
   return (
-    <div style={{ display: "flex", flexWrap: "nowrap", marginBottom: "10px" }}>
+    <div
+      style={{
+        display: "flex",
+        overflowX: "auto",
+        scrollbarWidth: "thin", // Firefox
+        msOverflowStyle: "none", // IE/Edge
+        flexShrink: 0,
+      }}
+    >
       {tabList.map((tab, index) => (
         <div
           onClick={() => tabOnClick(tab.value)}
@@ -32,11 +40,14 @@ export default function Tab({ primaryColor, tabList, tabOnChange, initialActiveT
             cursor: "pointer",
             backgroundColor:
               activeTab === tab.value ? (primaryColor ? primaryColor : "#69CA87") : "white",
-            flexGrow: 1,
+            flex: "1 0 auto", // biar tidak stretch
+            whiteSpace: "nowrap",
             minWidth: "100px",
-            padding: "20px",
+            padding: "12px 20px",
             textAlign: "center",
             color: activeTab === tab.value ? "white" : "black",
+            borderBottom: activeTab === tab.value ? "3px solid #333" : "3px solid transparent",
+            transition: "all 0.3s ease",
           }}
         >
           {tab.label}

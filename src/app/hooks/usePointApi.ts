@@ -103,14 +103,20 @@ export function useCreatePointHistoryOnly(params: { baseUrl: string; token: stri
 }
 
 /** List point_history by user (GET /history/user/:userId?limit=&offset=) */
-export function useListPointHistoryByUser(params: { baseUrl: string; token: string }) {
+export function useListPointHistory(params: { baseUrl: string; token: string }) {
   const { baseUrl, token } = params;
+
   return useCallback(
-    async (userId: UUID, opts?: { limit?: number; offset?: number }) => {
+    async (opts?: { userId?: UUID; isEarned?: boolean; limit?: number; offset?: number }) => {
       const q = new URLSearchParams();
+      console.log(opts);
+      if (opts?.userId) q.set("user_id", String(opts.userId));
+      if (opts?.isEarned !== undefined) q.set("is_earned", String(opts.isEarned));
       if (opts?.limit !== undefined) q.set("limit", String(opts.limit));
       if (opts?.offset !== undefined) q.set("offset", String(opts.offset));
-      const path = `/history/user/${encodeURIComponent(userId)}${q.toString() ? `?${q.toString()}` : ""}`;
+
+      const path = `/point/history${q.toString() ? `?${q.toString()}` : ""}`;
+
       return await doRequest<undefined, any>(baseUrl, token, path, "GET");
     },
     [baseUrl, token]

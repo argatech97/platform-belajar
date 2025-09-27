@@ -8,6 +8,7 @@ type BackNavigationProps = {
   backgroundColor?: string;
   color?: string;
   disableBorder?: boolean;
+  suffix?: React.ReactNode;
 };
 
 export default function BackNavigation({
@@ -15,6 +16,7 @@ export default function BackNavigation({
   backgroundColor,
   color,
   disableBorder,
+  suffix,
 }: BackNavigationProps) {
   const router = useRouter();
 
@@ -30,25 +32,29 @@ export default function BackNavigation({
         position: "sticky",
         top: 0,
         zIndex: 100,
+        justifyContent: "space-between",
       }}
       onClick={() => router.back()}
     >
       {/* Panah kiri pakai inline SVG */}
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="20"
-        height="20"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke={color ? color : "black"}
-        strokeWidth="2"
-        style={{ marginRight: "10px" }}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-      </svg>
-      <span style={{ fontSize: "16px", color: color ? color : "black", fontWeight: "bold" }}>
-        {label}
-      </span>
+      <div style={{ display: "flex" }}>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke={color ? color : "black"}
+          strokeWidth="2"
+          style={{ marginRight: "10px" }}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span style={{ fontSize: "16px", color: color ? color : "black", fontWeight: "bold" }}>
+          {label}
+        </span>
+      </div>
+      {suffix && suffix}
     </div>
   );
 }

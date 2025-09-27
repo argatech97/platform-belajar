@@ -3,6 +3,7 @@ import React from "react";
 interface Items {
   title: string;
   description: string;
+  description2?: string;
   action?: () => void;
 }
 
@@ -57,6 +58,9 @@ export default function TableSingleColumn({
                       {item.title}
                     </p>
                     <p style={{ color: "black", fontSize: "15px" }}>{item.description}</p>
+                    {item.description2 && (
+                      <p style={{ color: "black", fontSize: "15px" }}>{item.description2}</p>
+                    )}
                   </div>
                   {index + 1 !== items.length ? (
                     <div style={{ marginTop: "10px", borderTop: "solid 0.1px #c6c6c6" }} />

@@ -146,24 +146,39 @@ export default function Page() {
               onEnd={async (x: number) => {
                 setIsLoading(true);
                 submitAnswers(x)
-                  .catch((err) => {
-                    if (err.isDone) {
-                      alert(err.error);
+                  .catch(
+                    (err: {
+                      isDone: boolean;
+                      error: string;
+                      dataCapaian: { id: string; test_id: string; test_type_name: string }[];
+                    }) => {
+                      if (err.isDone) {
+                        alert(err.error);
+                        setTimeLeft(
+                          localStorage.getItem("timeLeft")
+                            ? JSON.parse(localStorage.getItem("timeLeft") || "0")
+                            : timeLeft
+                        );
+                        const x = params.get("testType");
+                        const y = params.get("id");
+                        const capaianId = err.dataCapaian.find(
+                          (el) => el.test_id === y && el.test_type_name === x
+                        )?.id;
+                        if (capaianId) {
+                          handleNext(capaianId);
+                        } else {
+                          window.close();
+                        }
+                        return;
+                      }
+                      alert(err);
                       setTimeLeft(
                         localStorage.getItem("timeLeft")
                           ? JSON.parse(localStorage.getItem("timeLeft") || "0")
                           : timeLeft
                       );
-                      window.close();
-                      return;
                     }
-                    alert(err);
-                    setTimeLeft(
-                      localStorage.getItem("timeLeft")
-                        ? JSON.parse(localStorage.getItem("timeLeft") || "0")
-                        : timeLeft
-                    );
-                  })
+                  )
                   .finally(() => {
                     setIsLoading(false);
                   });
@@ -180,24 +195,40 @@ export default function Page() {
                     ? JSON.parse(localStorage.getItem("timeLeft") || "0")
                     : timeLeft
                 )
-                  .catch((err) => {
-                    if (err.isDone) {
-                      alert(err.error);
+                  .catch(
+                    (err: {
+                      isDone: boolean;
+                      error: string;
+                      dataCapaian: { id: string; test_id: string; test_type_name: string }[];
+                    }) => {
+                      if (err.isDone) {
+                        alert(err.error);
+                        setTimeLeft(
+                          localStorage.getItem("timeLeft")
+                            ? JSON.parse(localStorage.getItem("timeLeft") || "0")
+                            : timeLeft
+                        );
+                        const x = params.get("testType");
+                        const y = params.get("id");
+                        const capaianId = err.dataCapaian.find(
+                          (el) => el.test_id === y && el.test_type_name === x
+                        )?.id;
+                        if (capaianId) {
+                          handleNext(capaianId);
+                        } else {
+                          window.close();
+                        }
+
+                        return;
+                      }
+                      alert(err);
                       setTimeLeft(
                         localStorage.getItem("timeLeft")
                           ? JSON.parse(localStorage.getItem("timeLeft") || "0")
                           : timeLeft
                       );
-                      window.close();
-                      return;
                     }
-                    alert(err);
-                    setTimeLeft(
-                      localStorage.getItem("timeLeft")
-                        ? JSON.parse(localStorage.getItem("timeLeft") || "0")
-                        : timeLeft
-                    );
-                  })
+                  )
                   .finally(() => {
                     setIsLoading(false);
                   });

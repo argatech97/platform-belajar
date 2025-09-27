@@ -73,10 +73,12 @@ export default function Page() {
               durasi_seconds: number;
               jumlah_soal: number;
               live_at: string;
+              live_end: string;
               id: string;
             }) => ({
               title: el.name,
-              description: `⏰ ${el.durasi_seconds / 60} Menit; 💬 ${el.jumlah_soal} Soal;  📅 ${formatDate(el.live_at)}`,
+              description2: ` 📅 ${formatDate(el.live_at)} - ${formatDate(el.live_end)}`,
+              description: `⏰ ${el.durasi_seconds / 60} Menit; 💬 ${el.jumlah_soal} Soal; `,
               action: () => {
                 if (localStorage.getItem(`${el.name}-is-done`)) {
                   alert(
@@ -120,7 +122,7 @@ export default function Page() {
             </p>
             <TableSingleColumn title={"Live Try Out"} items={data} />
 
-            <TableSingleColumn
+            {/* <TableSingleColumn
               title={"Try Out Mandiri"}
               items={[
                 {
@@ -128,7 +130,7 @@ export default function Page() {
                   description: "Try out mandiri belum tersedia",
                 },
               ]}
-            />
+            /> */}
           </div>
         </div>
       )}

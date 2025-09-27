@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Container from "@/components/Container";
 import BottomNavigation from "../components/BottomNavigation";
 import { useGetMyPointByUser } from "@/app/hooks/usePointApi";
+import Box from "@/components/Box";
 
 interface IUserPlatform {
   id: string; // tambahin id, biar bisa dipakai ke API point
@@ -202,6 +203,7 @@ export default function Page() {
         `}
         </style>
       </div>
+      <Box />
       <BottomNavigation />
     </Container>
   );

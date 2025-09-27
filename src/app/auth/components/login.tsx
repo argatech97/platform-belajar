@@ -41,7 +41,6 @@ export const LoginForm = memo(function LoginForm({
           no_identitas: identity,
           password,
         });
-        onSetLoading(false);
 
         const roleList = await fetch("/api/reference/role");
         const roleAlias = ((await roleList.json()) as { id: string; name: string }[]).find(
@@ -52,6 +51,8 @@ export const LoginForm = memo(function LoginForm({
           "user-platform-belajar",
           JSON.stringify({ ...res.user, role_alias: roleAlias })
         );
+        onSetLoading(false);
+
         onLoginSuccess(res.user);
       } catch (err: any) {
         onSetLoading(false);

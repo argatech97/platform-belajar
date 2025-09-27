@@ -9,6 +9,8 @@ import { Test } from "../types/reference";
 import Card from "@/components/Card";
 import { label } from "framer-motion/client";
 import BottomNavigation from "../components/BottomNavigation";
+import EmptyResult from "@/components/emptyResult";
+import Box from "@/components/Box";
 
 export default function Page() {
   const navbarTitle = useSearchParams().get("navbarTitle");
@@ -78,13 +80,33 @@ export default function Page() {
       });
   }, [router, token]);
 
+  if (data.length === 0) {
+    return (
+      <Container>
+        {selectedType && (
+          <Tab
+            initialActiveTab={selectedType}
+            tabList={testTypes.map((type) => ({ label: type.name, value: type.id }))}
+            tabOnChange={function (value: string): void {
+              setSelectedType(value);
+            }}
+          ></Tab>
+        )}
+        <EmptyResult
+          message={"Belum Ada Capain"}
+          description={"Kerjakan try out atau quiz untuk membuat capaian"}
+        />
+        <BottomNavigation />
+      </Container>
+    );
+  }
+
   return (
     <Container>
       {loading ? (
         <Loading />
       ) : (
         <>
-          <BackNavigation label={navbarTitle || ""} />
           {selectedType && (
             <Tab
               initialActiveTab={selectedType}
@@ -101,6 +123,7 @@ export default function Page() {
               padding: "0px 10px",
               gap: "10px",
               marginBottom: "10px",
+              height: "100%",
             }}
           >
             {data &&
@@ -117,6 +140,7 @@ export default function Page() {
                 />
               ))}
           </div>
+          <Box />
           <BottomNavigation />
         </>
       )}

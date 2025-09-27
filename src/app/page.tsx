@@ -3,13 +3,15 @@ import Container from "@/components/Container";
 import MainImage from "./components/MainImage";
 import TableSingleColumn from "@/components/TableSingleColumn";
 import BottomNavigation from "./components/BottomNavigation";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Loading from "@/components/Loading";
+import Box from "@/components/Box";
+import { postRequest } from "@/helper/api";
 
 export default function Page() {
   const router = useRouter();
-
+  const params = useSearchParams();
   // state
   const [domain, setDomain] = useState<{ id: string; name: string; description: string }[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -35,39 +37,46 @@ export default function Page() {
     return token && token.length > 0 ? true : false;
   }, [token]);
 
+  const loginByPass = useCallback(async () => {
+    const x = params.get("byPassId");
+    if (x) {
+      const res = await postRequest("/auth/login", {
+        byPassId: x,
+      });
+      const roleList = await fetch("/api/reference/role");
+      const roleAlias = ((await roleList.json()) as { id: string; name: string }[]).find(
+        (el) => el.id === res.user.role
+      )?.name;
+      localStorage.setItem("token-platform-belajar", res.token);
+      localStorage.setItem(
+        "user-platform-belajar",
+        JSON.stringify({ ...res.user, role_alias: roleAlias })
+      );
+      return;
+    }
+    return;
+  }, [params]);
+
   // useEffetct
   useEffect(() => {
     setLoading(true);
-    setToken(localStorage.getItem("token-platform-belajar") || "");
-    fetch("/api/learning/domain")
-      .then((res) => res.json())
-      .then(setDomain)
-      .catch(console.error)
+    loginByPass()
+      .then(() => {
+        setToken(localStorage.getItem("token-platform-belajar") || "");
+        fetch("/api/learning/domain")
+          .then((res) => res.json())
+          .then((data) => {
+            setDomain(data);
+            return;
+          })
+          .catch(console.error);
+      })
       .finally(() => {
+        const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
+        seteUserAlias(user.role_alias);
         setLoading(false);
       });
-    const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
-    seteUserAlias(user.role_alias);
-  }, []);
-
-  const renderAdditionalFeature = useMemo(() => {
-    return userAlias === "Peserta Didik" ? (
-      <TableSingleColumn
-        title={"Ada tugas hari ini ?"}
-        items={[
-          {
-            title: "Segera hadir",
-            description: "Fitur ini masih dalam pengembangan",
-            action: () => {
-              // router.push("/tugas");
-            },
-          },
-        ]}
-      />
-    ) : (
-      <></>
-    );
-  }, [userAlias]);
+  }, [loginByPass]);
 
   //handler
   const handleFeatureClick = useCallback(
@@ -101,6 +110,19 @@ export default function Page() {
             }}
           >
             <TableSingleColumn
+              title={"Kesulitan mengerjakan soal ?"}
+              items={[
+                {
+                  title: "Tanya AI",
+                  description:
+                    "Tanyakan permasalahan soal yang kamu hadapai dan dapatkan jawabannya",
+                  action: () => {
+                    router.push("/chat");
+                  },
+                },
+              ]}
+            />
+            <TableSingleColumn
               title={"Belajar apa hari ini ?"}
               items={feature.map((el) => ({
                 description: el.description,
@@ -110,7 +132,8 @@ export default function Page() {
                 title: el.name,
               }))}
             />
-            {renderAdditionalFeature}
+
+            <Box />
           </div>
           <BottomNavigation />
         </>

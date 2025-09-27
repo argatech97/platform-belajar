@@ -9,6 +9,7 @@ import CapaianCardList from "../components/CapaianCardList";
 import Loading from "@/components/Loading";
 import BottomNavigation from "../components/BottomNavigation";
 import EmptyResult from "@/components/emptyResult";
+import Box from "@/components/Box";
 
 export default function Page() {
   const navbarTitle = useSearchParams().get("navbarTitle");
@@ -144,6 +145,7 @@ export default function Page() {
               }}
             />
           </div>
+          <Box />
           <BottomNavigation />
         </>
       )}

@@ -1,0 +1,4 @@
+.katex-display {
+  margin: 0 !important;
+  display: inline-block !important; /* biar ikut alur teks */
+}

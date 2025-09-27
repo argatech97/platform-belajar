@@ -172,13 +172,16 @@ export function useAnswers(
     [earn, params]
   );
 
-  const handleNext = useCallback(() => {
-    removeLocalStorage();
-    localStorage.setItem(`${params.get("id")}-is-done`, JSON.stringify(true));
-    router.replace(
-      `/skor?id=${params.get("id")}&name=${params.get("navbarTitle")}${params.get("testType") === "Pre Quiz" ? `&testType=Pre Quiz` : ""}`
-    );
-  }, [params, removeLocalStorage, router]);
+  const handleNext = useCallback(
+    (capaianId?: string) => {
+      removeLocalStorage();
+      localStorage.setItem(`${params.get("id")}-is-done`, JSON.stringify(true));
+      router.replace(
+        `/skor?${capaianId ? `capaian_id=${capaianId}&` : ""}id=${params.get("id")}&name=${params.get("navbarTitle")}${params.get("testType") === "Pre Quiz" ? `&testType=Pre Quiz` : ""}`
+      );
+    },
+    [params, removeLocalStorage, router]
+  );
 
   const submitAnswers = useCallback(
     async (timeLeft: number) => {

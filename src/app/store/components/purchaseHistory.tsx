@@ -109,7 +109,6 @@ export default function PointHistoryList({ baseUrl, token, isEarned, userId }: P
         boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
         maxWidth: 600,
         margin: "20px auto",
-        height: "100%",
       }}
     >
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>

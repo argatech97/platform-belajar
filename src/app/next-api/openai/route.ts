@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    console.log("hello world");
     const { message } = await req.json();
 
     if (!message) {
@@ -38,7 +37,6 @@ export async function POST(req: Request) {
 
     if (!r.ok) {
       const text = await r.text();
-      console.error("OpenAI error:", text);
       return NextResponse.json({ error: "OpenAI API error" }, { status: 500 });
     }
 
@@ -47,7 +45,6 @@ export async function POST(req: Request) {
       /siapa (OpenAI|openAi|open ai|Open Ai|chat gpt|chatgpt|pencipta|pembuat|perancang|yang membuat|yang menciptakan|yang bikin|yang merancang)(mu|AI ini)?|kamu dibuat oleh siapa|oleh siapa kamu dibuat|oleh siapa AI ini dibuat|siapa yang membuat AI ini|siapa yang menciptakan AI ini|siapa yang bikin AI ini|siapa yang merancang AI ini|oleh siapa kamu dirancang|oleh siapa kamu diciptakan|siapa pembuatmu|siapa penciptamu|siapa yang membuatmu|siapa yang menciptakanmu|siapa yang bikin kamu|siapa yang merancangmu/i;
 
     let reply = data?.choices?.[0]?.message?.content ?? "";
-    console.log(creatorRegex.test(message));
     // override jawaban jika pertanyaan tentang pencipta
     if (creatorRegex.test(message)) {
       reply =
@@ -55,7 +52,6 @@ export async function POST(req: Request) {
     }
     return NextResponse.json({ reply });
   } catch (err) {
-    console.error(err);
     return NextResponse.json(
       { error: (err as Error).message ?? "Internal error" },
       { status: 500 }

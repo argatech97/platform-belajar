@@ -69,7 +69,6 @@ export default function ChatPage() {
       setMessages((m) => m.map((msg) => (msg.id === loadingMessage.id ? errMessage : msg)));
     } finally {
       setLoading(false);
-      inputRef.current?.focus();
     }
   };
 

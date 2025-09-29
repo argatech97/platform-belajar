@@ -269,7 +269,7 @@ export default function Leaderboard() {
                 >
                   {p.nama_lengkap}
                 </div>
-                <div style={{ fontWeight: 900, marginBottom: 6 }}>{p.point} pts</div>
+                <div style={{ fontWeight: 900, marginBottom: 6 }}>{p.point} poin</div>
                 <div
                   style={{
                     fontSize: 12,
@@ -359,7 +359,7 @@ export default function Leaderboard() {
                       </div>
                     </div>
                   </div>
-                  <div style={{ fontWeight: 800 }}>{p.point} pts</div>
+                  <div style={{ fontWeight: 800 }}>{p.point} poin</div>
                 </div>
 
                 {/* progress bar */}

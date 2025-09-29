@@ -1,23 +1,21 @@
 "use client";
 import React, { useCallback, useEffect } from "react";
 import Container from "@/components/Container";
-import BackNavigation from "@/components/BackNavigation";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Tab from "@/components/Tab";
 import Loading from "@/components/Loading";
 import { Test } from "../types/reference";
 import Card from "@/components/Card";
-import { label } from "framer-motion/client";
 import BottomNavigation from "../components/BottomNavigation";
 import EmptyResult from "@/components/emptyResult";
 import Box from "@/components/Box";
 
 export default function Page() {
-  const navbarTitle = useSearchParams().get("navbarTitle");
   const router = useRouter();
   const [token, setToken] = React.useState<string | null>(null);
   const [testTypes, setTestTypes] = React.useState<{ name: string; id: string }[]>([]);
   const [selectedType, setSelectedType] = React.useState<string>("");
+  const [selectedTypeName, setSelectedTypeName] = React.useState<string>("");
   const [data, setData] = React.useState<Test[]>([]);
   const [loading, setLoading] = React.useState(true);
 
@@ -44,13 +42,15 @@ export default function Page() {
   useEffect(() => {
     if (selectedType) {
       setLoading(true);
-      getTestById(selectedType, token || "")
+      const quizId = testTypes.find((el) => el.name === "Quiz")?.id || selectedType;
+      const isPrequiz = testTypes.find((el) => el.id === selectedType)?.name === "Pre Quiz";
+      getTestById(isPrequiz ? quizId : selectedType, token || "")
         .then((res: { data: Test[] }) => {
           setData(res.data);
         })
         .finally(() => setLoading(false));
     }
-  }, [getTestById, router, selectedType, token]);
+  }, [getTestById, router, selectedType, testTypes, token]);
 
   useEffect(() => {
     const storedToken = localStorage.getItem("token-platform-belajar");
@@ -74,9 +74,15 @@ export default function Page() {
       .then((data) => {
         if (!data) return;
         setTestTypes(data.data);
+        console.log(data.data);
         const tryOut = data.data.find((t: { name: string }) => t.name === "Try Out");
-        if (tryOut) setSelectedType(tryOut.id);
-        else if (data.data.length > 0) setSelectedType(data.data[0].id);
+        if (tryOut) {
+          setSelectedType(tryOut.id);
+          setSelectedTypeName(tryOut.name);
+        } else if (data.data.length > 0) {
+          setSelectedType(data.data[0].id);
+          setSelectedTypeName(data.data[0].name);
+        }
       });
   }, [router, token]);
 
@@ -89,6 +95,7 @@ export default function Page() {
             tabList={testTypes.map((type) => ({ label: type.name, value: type.id }))}
             tabOnChange={function (value: string): void {
               setSelectedType(value);
+              setSelectedTypeName(testTypes.find((el) => el.id === value)?.name || "");
             }}
           ></Tab>
         )}
@@ -113,6 +120,7 @@ export default function Page() {
               tabList={testTypes.map((type) => ({ label: type.name, value: type.id }))}
               tabOnChange={function (value: string): void {
                 setSelectedType(value);
+                setSelectedTypeName(testTypes.find((el) => el.id === value)?.name || "");
               }}
             ></Tab>
           )}
@@ -135,7 +143,14 @@ export default function Page() {
                   suffix={<>🎯 {el.jumlah_soal} Soal</>}
                   onClick={() => {
                     localStorage.removeItem(el.name);
-                    window.open(`/test-result?id=${el.id}&name=${el.name}`, "_blank");
+                    if (selectedTypeName === "Quiz" || "Pre Quiz") {
+                      window.open(
+                        `/test-result?id=${el.id}&name=${el.name}&test_type_id=${selectedType}`,
+                        "_blank"
+                      );
+                    } else {
+                      window.open(`/test-result?id=${el.id}&name=${el.name}`, "_blank");
+                    }
                   }}
                 />
               ))}

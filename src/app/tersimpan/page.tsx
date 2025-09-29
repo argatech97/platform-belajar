@@ -212,21 +212,35 @@ const SavedPembahasanPage: React.FC = () => {
             </div>
           ))}
         </div>
+        <Box />
+        <Box />
       </div>
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "5px",
-          position: "sticky",
+          position: "fixed",
           bottom: 0,
           left: 0,
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <BottomNavigationPrevNext handleNext={handleNext} handlePrev={handlePrev} />
-        <BottomNavigation />
+        <div
+          style={{
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            gap: "5px",
+            maxWidth: "500px",
+            width: "100%",
+          }}
+        >
+          <BottomNavigationPrevNext handleNext={handleNext} handlePrev={handlePrev} />
+          <BottomNavigation />
+          <Box />
+        </div>
       </div>
-      <Box />
     </Container>
   );
 };

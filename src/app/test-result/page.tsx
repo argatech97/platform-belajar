@@ -204,12 +204,16 @@ export default function Page() {
   const fetchHasilCapaian = useCallback(
     async (id: string) => {
       try {
+        const testTypeId = params.get("test_type_id");
         setIsLoading(true);
-        const res = await fetch(`/api/test/capaian/rank/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token-platform-belajar") || ""}`,
-          },
-        });
+        const res = await fetch(
+          `/api/test/capaian/rank/${id}${testTypeId ? `?test_type_id=${testTypeId}` : ``}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token-platform-belajar") || ""}`,
+            },
+          }
+        );
         if (!res.ok) {
           router.replace("/auth");
           return;
@@ -462,9 +466,13 @@ export default function Page() {
     router.push(`/test/pembahasan?navbarTitle=${params.get("name")}&id=${params.get("id")}`);
   };
 
-  const getName = useMemo(() => {
-    return params.get("user_name") || userName;
-  }, [params, userName]);
+  const maxScore = useMemo(() => {
+    if (questions.length > 0) {
+      return questions.length * 5;
+    }
+
+    return 0;
+  }, [questions]);
 
   return isLoading ? (
     <Loading />
@@ -508,6 +516,8 @@ export default function Page() {
           <div style={{ marginTop: 10, color: "#374151" }}>
             ⏰ Waktu: {testResult?.testTime ?? "-"}
           </div>
+
+          <div style={{ marginTop: 10, color: "#374151" }}>🎯 Skor Maksimal: {maxScore}</div>
 
           <div style={styles.actionsRow}>
             <button

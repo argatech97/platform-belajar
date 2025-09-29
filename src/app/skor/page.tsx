@@ -153,6 +153,13 @@ export default function PageGokilInline() {
 
   const [copied, setCopied] = useState(false);
   const [userName, setUserName] = useState("");
+  const maxScore = useMemo(() => {
+    if (questions.length > 0) {
+      return questions.length * 5;
+    }
+
+    return 0;
+  }, [questions]);
 
   const fetchData = useCallback(async () => {
     try {
@@ -486,6 +493,7 @@ export default function PageGokilInline() {
           <div style={{ marginTop: 10, color: "#374151" }}>
             ⏰ Waktu: {testResult?.testTime ?? "-"}
           </div>
+          <div style={{ marginTop: 10, color: "#374151" }}>🎯 Skor Maksimal: {maxScore}</div>
 
           <div style={styles.actionsRow}>
             <button

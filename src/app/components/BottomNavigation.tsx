@@ -137,7 +137,7 @@ export default function BottomNavigation() {
               router.push("/store");
             }}
           >
-            <span style={{ fontSize: "18px" }}>🪙</span>
+            <span style={{ fontSize: "19.5px" }}>🪙</span>
             <span>Poin</span>
           </div>
           <div

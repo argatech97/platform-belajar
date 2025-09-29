@@ -124,7 +124,9 @@ export default function Page() {
           {selectedType && (
             <Tab
               initialActiveTab={selectedType}
-              tabList={testTypes.map((type) => ({ label: type.name, value: type.id }))}
+              tabList={testTypes
+                .filter((el) => el.name !== "Pre Quiz")
+                .map((type) => ({ label: type.name, value: type.id }))}
               tabOnChange={function (value: string): void {
                 setSelectedType(value);
               }}

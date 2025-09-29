@@ -25,3 +25,7 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+.katex-display .katex {
+  white-space: unset !important;
+}

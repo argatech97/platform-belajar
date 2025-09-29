@@ -62,7 +62,7 @@ const ExamPage: React.FC = () => {
       })
       .then((data) => {
         if (!data) return;
-        setTestTypes(data.data);
+        setTestTypes(data.data.filter((el: TestType) => el.name !== "Pre Quiz"));
         const tryOut = data.data.find((t: TestType) => t.name === "Try Out");
         if (tryOut) setSelectedType(tryOut.id);
         else if (data.data.length > 0) setSelectedType(data.data[0].id);
@@ -234,7 +234,7 @@ const ExamPage: React.FC = () => {
           overflowX: "auto", // ✅ tambahkan ini
         }}
       >
-        <table style={{ minWidth: "900px", borderCollapse: "collapse" }}>
+        <table style={styles.table}>
           <thead>
             <tr style={{ backgroundColor: "#E6FFEE" }}>
               <th style={{ textAlign: "left", padding: "14px", fontWeight: 600 }}>Nama</th>
@@ -267,19 +267,47 @@ const ExamPage: React.FC = () => {
                 <td style={{ padding: "14px" }}>{exam.durasi_seconds}</td>
                 <td style={{ padding: "14px" }}>{exam.point}</td>
                 <td style={{ padding: "14px", textAlign: "center" }}>
-                  <button
-                    style={{
-                      backgroundColor: "#69CA87",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "6px",
-                      padding: "6px 12px",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => window.open(`/test-dashboard/soal?id=${exam.id}`, "_blank")}
-                  >
-                    Buat Soal
-                  </button>
+                  <div style={{ display: "flex", flexWrap: "nowrap", gap: "10px" }}>
+                    <button
+                      style={{
+                        backgroundColor: "#25639dff",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "6px 12px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => window.open(`/test-dashboard/soal?id=${exam.id}`, "_blank")}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      style={{
+                        backgroundColor: "#d94444ff",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "6px 12px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => window.open(`/test-dashboard/soal?id=${exam.id}`, "_blank")}
+                    >
+                      Hapus
+                    </button>
+                    <button
+                      style={{
+                        backgroundColor: "#69CA87",
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "6px 12px",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => window.open(`/test-dashboard/soal?id=${exam.id}`, "_blank")}
+                    >
+                      Buat Soal
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
@@ -388,13 +416,12 @@ const ExamPage: React.FC = () => {
               </div>
 
               <div>
-                <label style={styles.label}>Point (wajib)</label>
+                <label style={styles.label}>Point (optional)</label>
                 <input
                   type="number"
                   name="point"
                   value={form.point}
                   onChange={handleChange}
-                  required
                   style={styles.input}
                 />
               </div>

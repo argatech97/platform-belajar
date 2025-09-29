@@ -20,13 +20,15 @@
     "next-pwa": "^5.6.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-katex": "^3.1.0"
+    "react-katex": "^3.1.0",
+    "slate": "^0.118.1",
+    "slate-react": "^0.117.4"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^19.1.14",
+    "@types/react-dom": "^19.1.9",
     "eslint": "^9",
     "eslint-config-next": "15.5.2",
     "prettier": "^3.6.2",

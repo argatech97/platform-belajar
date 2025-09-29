@@ -1,4 +1,5 @@
 "use client";
+import DocumentEditor from "@/components/WYSIWYG";
 import React, { useState } from "react";
 
 const CreateContentButton: React.FC<{ testId: string; token: string; onSuccess: () => void }> = ({
@@ -6,6 +7,7 @@ const CreateContentButton: React.FC<{ testId: string; token: string; onSuccess: 
   token,
   onSuccess,
 }) => {
+  const [value, setValue] = useState("");
   const [open, setOpen] = useState(false);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);

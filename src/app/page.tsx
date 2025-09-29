@@ -22,12 +22,12 @@ export default function Page() {
   const feature: { id: string; name: string; description: string }[] = useMemo(() => {
     if (userAlias === "Peserta Didik") {
       return [
-        ...domain,
         {
           id: "tryout",
           name: "Try Out",
           description: "Latihan berkala lewat Try Out untuk tingkatkan kompetensimu",
         },
+        ...domain,
       ];
     }
     return [...domain];

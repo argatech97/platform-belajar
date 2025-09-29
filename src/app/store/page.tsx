@@ -1,5 +1,5 @@
 "use client";
-import React, { use, useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Leaderboard from "./components/leaderboard";
 import Container from "@/components/Container";
 import Tab from "@/components/Tab";
@@ -74,7 +74,7 @@ export default function Page() {
         return;
       } catch (error) {
         alert(
-          `Terjadi error, screenshoot error ini dan berikan kepada admin. ${JSON.stringify(error)}`
+          `Terjadi error, screenshoot error ini dan berikan kepada admin. ${(error as Error).message}`
         );
       }
     },

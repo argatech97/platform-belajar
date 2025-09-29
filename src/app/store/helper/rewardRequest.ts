@@ -28,7 +28,8 @@ export async function decrementRewardStock(id: string): Promise<IReward> {
   });
 
   if (!res.ok) {
-    throw new Error("Gagal mengurangi stok reward");
+    const x = await res.json();
+    throw new Error(x.message);
   }
 
   return res.json();

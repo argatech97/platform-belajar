@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React, { useEffect, useState } from "react";
 import { fetchRewards } from "../helper/rewardRequest";
@@ -280,13 +281,28 @@ export default function RewardList({
                 boxShadow: "0 4px 12px rgba(0,0,0,0.25)",
                 transition: "transform 0.2s",
               }}
-              onClick={() => {
-                redeem(selected.id, selected.name, selected.pointPrice).then(() => {
-                  setRewards((prev) =>
-                    prev.map((r) => (r.id === selected.id ? { ...r, stock: r.stock - 1 } : r))
-                  );
-                  setSelected((prev) => (prev ? { ...prev, stock: prev.stock - 1 } : prev));
-                });
+              onClick={async () => {
+                try {
+                  await redeem(selected.id, selected.name, selected.pointPrice);
+                  // Setelah redeem, reload data rewards dari API
+                  await loadRewards(offset);
+
+                  // Ambil ulang data reward yang barusan di klik
+                  const updatedData = await fetchRewards(offset, limit);
+                  const updatedReward = updatedData.find((r: any) => r.id === selected.id);
+
+                  if (updatedReward) {
+                    setSelected({
+                      ...updatedReward,
+                      image: updatedReward.url_image,
+                      pointPrice: updatedReward.point,
+                    });
+                  } else {
+                    setSelected(null); // kalau reward sudah tidak ada (stok habis)
+                  }
+                } catch (err) {
+                  console.error("Gagal redeem reward:", err);
+                }
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}

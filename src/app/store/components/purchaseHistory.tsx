@@ -59,6 +59,7 @@ export default function PointHistoryList({ baseUrl, token, isEarned, userId }: P
           borderRadius: 10,
           textAlign: "center",
           fontWeight: "bold",
+          height: "100%",
         }}
       >
         ❌ {error}
@@ -108,6 +109,7 @@ export default function PointHistoryList({ baseUrl, token, isEarned, userId }: P
         boxShadow: "0 4px 15px rgba(0,0,0,0.1)",
         maxWidth: 600,
         margin: "20px auto",
+        height: "100%",
       }}
     >
       <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>

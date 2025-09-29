@@ -11,6 +11,7 @@ import BottomNavigation from "../components/BottomNavigation";
 import BottomNavigationPrevNext from "../test/components/bottomNavigation";
 import BackNavigation from "@/components/BackNavigation";
 import EmptyResult from "@/components/emptyResult";
+import Box from "@/components/Box";
 
 const LIMIT = 5;
 
@@ -122,6 +123,7 @@ const SavedPembahasanPage: React.FC = () => {
         style={{
           padding: "20px",
           backgroundColor: "#f9fafb",
+          height: "100%",
         }}
       >
         <h1
@@ -224,6 +226,7 @@ const SavedPembahasanPage: React.FC = () => {
         <BottomNavigationPrevNext handleNext={handleNext} handlePrev={handlePrev} />
         <BottomNavigation />
       </div>
+      <Box />
     </Container>
   );
 };

@@ -186,10 +186,10 @@ export default function Page() {
     async (description: string, id: string, point: number) => {
       if (!preQuizId || !quizId) return;
       const res = await fetchQuizDone(preQuizId, quizId);
-      // if (res?.preQuiz.length === 0) {
-      //   alert("Kamu harus menyelesaikan minimal 1 pre quiz terlebih dahulu untuk melihat materi");
-      //   return;
-      // }
+      if (res?.preQuiz.length === 0) {
+        alert("Kamu harus menyelesaikan minimal 1 pre quiz terlebih dahulu untuk melihat materi");
+        return;
+      }
       router.push(
         `/subDomain/kompetensi/pembelajaran/materi?point=${point}&navbarTitle=${description}&id=${id}&parent_id=${kompetensiId}`
       );
@@ -336,6 +336,7 @@ export default function Page() {
               countQuestion: q.jumlah_soal || 0,
               minute: (q.durasi_seconds || 0) / 60,
               point: q.point,
+              isDone: quizDone.includes(q.id),
             }))}
             onClickItem={onClickItemQuiz}
           />
@@ -361,6 +362,7 @@ export default function Page() {
               countQuestion: q.jumlah_soal || 0,
               minute: (q.durasi_seconds || 0) / 60,
               point: q.point,
+              isDone: preQuizDone.includes(q.id),
             }))}
             onClickItem={onClickItemPreQuiz}
           />

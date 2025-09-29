@@ -13,6 +13,7 @@ const PreQuiz = React.memo(function Quiz({
     point: number
   ) => void;
   items: {
+    isDone: boolean;
     title: string;
     countQuestion: number;
     minute: number;
@@ -34,6 +35,7 @@ const PreQuiz = React.memo(function Quiz({
           key={index}
           title={item.title}
           description={`${item.countQuestion} Soal | 🪙 +${item.point} point`}
+          prefix={<span>{item.isDone ? "✅" : "⬜"}</span>}
           suffix={
             <span
               style={{ display: "flex", flexWrap: "nowrap", color: "black", whiteSpace: "nowrap" }}

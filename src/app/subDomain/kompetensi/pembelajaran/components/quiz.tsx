@@ -13,6 +13,7 @@ const Quiz = React.memo(function Quiz({
     point: number
   ) => void;
   items: {
+    isDone: boolean;
     title: string;
     countQuestion: number;
     minute: number;
@@ -32,6 +33,7 @@ const Quiz = React.memo(function Quiz({
             onClickItem(item.title, item.id, item.minute * 60, item.countQuestion, item.point);
           }}
           key={index}
+          prefix={<span>{item.isDone ? "✅" : "⬜"}</span>}
           title={item.title}
           description={`${item.countQuestion} Soal | 🪙 +${item.point} point`}
           suffix={

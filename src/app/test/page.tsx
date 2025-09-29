@@ -27,7 +27,7 @@ export default function Page() {
   const [isStopTimer, setIsStopTimer] = useState(false);
 
   const POINT_PER_QUESTION = useMemo(() => 5, []);
-  const storagekeyRef = useRef<string>(params.get("name") || "test");
+  const storagekeyRef = useRef<string>(params.get("id") || "test");
 
   const {
     testData,

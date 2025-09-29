@@ -46,6 +46,7 @@ export default function PreparationPage() {
     localStorage.removeItem("timeLeft");
     localStorage.removeItem("soal-aktif-platform-belajar");
     localStorage.removeItem("content-aktif-platform-belajar");
+    localStorage.removeItem(searchParams.get("id") || "");
 
     router.push(
       `/test?name=${testName}&navbarTitle=${testName}&id=${id}&duration=${Number(

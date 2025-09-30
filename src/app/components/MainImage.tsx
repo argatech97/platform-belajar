@@ -40,7 +40,6 @@ export default function MainImage() {
             opacity: 0.3,
           }}
         ></div>
-        {roleAlias}
         <Title role_alias={roleAlias} />
       </div>
     </>

@@ -101,7 +101,7 @@ export function useAnswers(
         const percentageBySubDomain = computeAndSavePercentageBySubDomain(answers, testData);
         const percentageByKompetensi = computeAndSavePercentageByKompetensi(answers, testData);
         const currentUser = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
-        const request = await fetch(`/api/test/capaian/creat`, {
+        const request = await fetch(`/api/test/capaian/create`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

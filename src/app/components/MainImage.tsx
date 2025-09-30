@@ -1,16 +1,25 @@
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Title from "./Title";
 
 export default function MainImage() {
+  const [roleAlias, setRoleAlias] = useState<string>("");
+
+  useEffect(() => {
+    const user = JSON.stringify(localStorage.getItem("user-platform-belajar") || "");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    setRoleAlias((user as any).role_alias);
+  }, []);
   return (
     <>
       <div style={{ position: "relative", maxHeight: "240px" }}>
-        <Image
-          src="/pesertaDidik.jpg"
+        <img
+          src={
+            roleAlias === "Peserta Didik"
+              ? "https://mtsn2bandaaceh.sch.id/wp-content/uploads/2019/08/murid-sekolah-20151112-104930-5d5538fe097f363fd8556c12.jpg"
+              : "https://www.tanotofoundation.org/wp-content/uploads/2019/01/Pembalajaran-aktif-dan-kreatif.jpg"
+          }
           alt="Banner"
-          width={1200}
-          height={600}
           style={{
             width: "100%",
             height: "auto",
@@ -31,7 +40,7 @@ export default function MainImage() {
             opacity: 0.3,
           }}
         ></div>
-        <Title />
+        <Title role_alias={roleAlias} />
       </div>
     </>
   );

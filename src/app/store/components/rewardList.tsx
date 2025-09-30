@@ -269,6 +269,7 @@ export default function RewardList({
               🪙 {selected.pointPrice} poin
             </p>
             <button
+              disabled={loading ? true : false}
               style={{
                 padding: "0.8rem 1.5rem",
                 border: "none",
@@ -282,7 +283,9 @@ export default function RewardList({
                 transition: "transform 0.2s",
               }}
               onClick={async () => {
+                setLoading(true);
                 try {
+                  setLoading(true);
                   await redeem(selected.id, selected.name, selected.pointPrice);
                   // Setelah redeem, reload data rewards dari API
                   await loadRewards(offset);
@@ -302,12 +305,14 @@ export default function RewardList({
                   }
                 } catch (err) {
                   console.error("Gagal redeem reward:", err);
+                } finally {
+                  setLoading(false);
                 }
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
               onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
             >
-              🔄 Tukar Sekarang
+              {loading ? "Loading" : "🔄 Tukar Sekarang"}
             </button>
           </div>
         </div>

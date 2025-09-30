@@ -1,7 +1,7 @@
 import Image from "next/image";
 import React from "react";
 
-export default function Title() {
+export default function Title({ role_alias }: { role_alias: string }) {
   return (
     <div
       style={{
@@ -27,7 +27,7 @@ export default function Title() {
         width="20"
       ></Image>
       <h4 style={{ fontWeight: "bold", color: "black" }}>
-        Platform Belajar Literasi-Numerasi Peserta Didik
+        Platform Belajar Literasi-Numerasi {role_alias}
       </h4>
       <p style={{ marginTop: "5px", color: "black", fontSize: "15px" }}>
         Tingkatkan kompetensi dengan belajar dan berlatih di sini

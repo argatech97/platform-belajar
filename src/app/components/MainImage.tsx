@@ -1,4 +1,4 @@
-import Image from "next/image";
+/* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState } from "react";
 import Title from "./Title";
 
@@ -6,7 +6,7 @@ export default function MainImage() {
   const [roleAlias, setRoleAlias] = useState<string>("");
 
   useEffect(() => {
-    const user = JSON.stringify(localStorage.getItem("user-platform-belajar") || "");
+    const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setRoleAlias((user as any).role_alias);
   }, []);
@@ -40,6 +40,7 @@ export default function MainImage() {
             opacity: 0.3,
           }}
         ></div>
+        {roleAlias}
         <Title role_alias={roleAlias} />
       </div>
     </>

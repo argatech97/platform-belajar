@@ -4,6 +4,7 @@ export interface IReward {
   url_image: string;
   point: number;
   stock: number;
+  initial_stck: number;
 }
 
 // --- API HELPER ---

@@ -9,6 +9,7 @@ interface IReward {
   image: string;
   stock: number;
   pointPrice: number;
+  initial_stck: number;
 }
 
 export default function RewardList({
@@ -26,7 +27,14 @@ export default function RewardList({
     try {
       setLoading(true);
       const data = await fetchRewards(newOffset, limit);
-      setRewards(data.map((el) => ({ ...el, image: el.url_image, pointPrice: el.point })));
+      console.log(data);
+      setRewards(
+        data.map((el) => ({
+          ...el,
+          image: el.url_image,
+          pointPrice: el.point,
+        }))
+      );
       setOffset(newOffset);
     } finally {
       setLoading(false);
@@ -121,7 +129,7 @@ export default function RewardList({
                     color: reward.stock > 0 ? "#27ae60" : "#e74c3c",
                   }}
                 >
-                  {reward.stock > 0 ? `📦 Stok: ${reward.stock}` : "❌ Habis"}
+                  {`📦 Stok: ${reward.stock}/${reward.initial_stck}`}
                 </p>
                 <div
                   style={{

@@ -113,9 +113,8 @@ export default function Page() {
               title={"Kesulitan mengerjakan soal ?"}
               items={[
                 {
-                  title: "Tanya AI",
-                  description:
-                    "Tanyakan permasalahan soal yang kamu hadapai dan dapatkan jawabannya",
+                  title: "Lumera AI",
+                  description: "Asisten cerdas berbasis AI, siap menjawab permasalahan soal Anda",
                   action: () => {
                     router.push("/chat");
                   },

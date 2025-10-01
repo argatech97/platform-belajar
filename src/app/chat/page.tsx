@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { MessageBubble } from "./components/MessageBubble";
 import Container from "@/components/Container";
 import BackNavigation from "@/components/BackNavigation";
+import { TypingDots } from "./components/Typing";
 
 type Message = {
   id: string;
@@ -34,7 +35,7 @@ export default function ChatPage() {
     const loadingMessage: Message = {
       id: String(Date.now()) + "-loading",
       role: "assistant",
-      text: "Menulis jawaban...",
+      text: "__typing__", // gunakan placeholder
     };
     setMessages((m) => [...m, userMessage, loadingMessage]);
     setLoading(true);
@@ -80,7 +81,10 @@ export default function ChatPage() {
   };
 
   useEffect(() => {
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    chatRef.current?.scrollTo({
+      top: chatRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   const green = "rgb(105, 202, 135)";
@@ -109,17 +113,21 @@ export default function ChatPage() {
               alignItems: "center",
             }}
           >
-            {
-              <p style={{ color: "#666", textAlign: "center", marginTop: "2rem" }}>
-                Tanyakan tentang soal apa saja, akan bantu saya menjawabnya ✨
-              </p>
-            }
+            <p style={{ color: "#666", textAlign: "center", marginTop: "2rem" }}>
+              Tanyakan tentang soal apa saja, akan bantu saya menjawabnya ✨
+            </p>
           </div>
         )}
 
-        {messages.map((m) => (
-          <MessageBubble key={m.id} message={m} />
-        ))}
+        {messages.map((m) =>
+          m.text === "__typing__" ? (
+            <div key={m.id} style={{ margin: "0.5rem 0" }}>
+              <TypingDots />
+            </div>
+          ) : (
+            <MessageBubble key={m.id} message={m} />
+          )
+        )}
       </div>
 
       {/* Input Area */}

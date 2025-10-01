@@ -92,7 +92,7 @@ export default function ChatPage() {
   return (
     <Container>
       {/* Header */}
-      <BackNavigation label={"Lumera AI"} />
+      <BackNavigation label={"Lumera AI, tanya jawab lebih mudah"} />
 
       {/* Chat Area */}
       <div

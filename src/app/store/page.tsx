@@ -50,28 +50,33 @@ export default function Page() {
   const redeem = useCallback(
     async (id: string, name: string, pointPrice: number) => {
       try {
+        const isByPass = JSON.parse(localStorage.getItem("bypass") || "false");
+
         if (point < pointPrice) {
           alert("Poin anda tidak cukup");
           return;
+        } else if (isByPass) {
+          alert("Akun anda dilarang menukar reward");
+          return;
+        } else {
+          const sisa = point - pointPrice;
+          const x: CreatePointHistoryDto = {
+            relationd_id: id,
+            point: pointPrice,
+            user_id: userId,
+            is_earned: false,
+            activity_name: `${userName} menukar poinnya dengan ${name}`,
+          };
+
+          await decrementRewardStock(id);
+          await updateMyPoint(userId, { point: sisa });
+          await createPointHistory(x);
+          getMyPointByUser(userId).then((pointRes) => {
+            setPoint(pointRes.data.point ?? 0);
+          });
+          alert("Kamu berhasil menukar poin dengan reward, lihat rewardmu di tab Reward Saya");
+          return;
         }
-
-        const sisa = point - pointPrice;
-        const x: CreatePointHistoryDto = {
-          relationd_id: id,
-          point: pointPrice,
-          user_id: userId,
-          is_earned: false,
-          activity_name: `${userName} menukar poinnya dengan ${name}`,
-        };
-
-        await decrementRewardStock(id);
-        await updateMyPoint(userId, { point: sisa });
-        await createPointHistory(x);
-        getMyPointByUser(userId).then((pointRes) => {
-          setPoint(pointRes.data.point ?? 0);
-        });
-        alert("Kamu berhasil menukar poin dengan reward, lihat rewardmu di tab Reward Saya");
-        return;
       } catch (error) {
         alert(
           `Terjadi error, screenshoot error ini dan berikan kepada admin. ${(error as Error).message}`

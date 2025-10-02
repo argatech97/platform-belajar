@@ -47,6 +47,7 @@ export default function Page() {
       const roleAlias = ((await roleList.json()) as { id: string; name: string }[]).find(
         (el) => el.id === res.user.role
       )?.name;
+      localStorage.setItem("bypass", "true");
       localStorage.setItem("token-platform-belajar", res.token);
       localStorage.setItem(
         "user-platform-belajar",

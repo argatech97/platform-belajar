@@ -21,6 +21,12 @@ export default function Page() {
   const [user, setUser] = useState<IUserPlatform | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [point, setPoint] = useState<number | null>(null);
+  const [isByPass, setIsByPass] = useState<boolean>(false);
+
+  useEffect(() => {
+    const x = JSON.parse(localStorage.getItem("bypass") || "false");
+    setIsByPass(x);
+  }, []);
 
   // baseUrl & token buat hook
   const token =
@@ -175,23 +181,25 @@ export default function Page() {
           </div>
 
           {/* Logout */}
-          <button
-            onClick={handleLogout}
-            style={{
-              width: "100%",
-              padding: "12px",
-              fontSize: "1rem",
-              fontWeight: "bold",
-              background: "#69CA87",
-              border: "none",
-              borderRadius: "8px",
-              color: "white",
-              cursor: "pointer",
-              transition: "background 0.2s ease",
-            }}
-          >
-            Logout
-          </button>
+          {!isByPass && (
+            <button
+              onClick={handleLogout}
+              style={{
+                width: "100%",
+                padding: "12px",
+                fontSize: "1rem",
+                fontWeight: "bold",
+                background: "#69CA87",
+                border: "none",
+                borderRadius: "8px",
+                color: "white",
+                cursor: "pointer",
+                transition: "background 0.2s ease",
+              }}
+            >
+              Logout
+            </button>
+          )}
         </div>
 
         <style>

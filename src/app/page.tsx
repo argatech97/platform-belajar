@@ -55,7 +55,6 @@ export default function Page() {
       );
       return;
     }
-    return;
   }, [params]);
 
   // useEffetct
@@ -64,6 +63,12 @@ export default function Page() {
     loginByPass()
       .then(() => {
         setToken(localStorage.getItem("token-platform-belajar") || "");
+        const x = localStorage.getItem("user-platform-belajar") || "";
+        const user = x ? JSON.parse(x) : null;
+        if (user) {
+          seteUserAlias(user.role_alias);
+        }
+
         fetch("/api/learning/domain")
           .then((res) => res.json())
           .then((data) => {
@@ -73,8 +78,6 @@ export default function Page() {
           .catch(console.error);
       })
       .finally(() => {
-        const user = JSON.parse(localStorage.getItem("user-platform-belajar") || "{}");
-        seteUserAlias(user.role_alias);
         setLoading(false);
       });
   }, [loginByPass]);

@@ -20,8 +20,8 @@ export default function MainImage() {
         <img
           src={
             roleAlias === "Peserta Didik"
-              ? "https://mtsn2bandaaceh.sch.id/wp-content/uploads/2019/08/murid-sekolah-20151112-104930-5d5538fe097f363fd8556c12.jpg"
-              : "https://www.tanotofoundation.org/wp-content/uploads/2019/01/Pembalajaran-aktif-dan-kreatif.jpg"
+              ? "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTxrBzVthmOb0s4fDDV4ew_fYgnAYWVHUv0jQ&s"
+              : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyxRk0iKwkRqNG4niB6EYqegOqWNfXscQn4A&s"
           }
           alt="Banner"
           style={{
